@@ -1,17 +1,18 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace SotD.Characters.Player
 {
     /// <summary>Drives the Player (input, state updates, animation hooks).</summary>
-    [RequireComponent(typeof(Player))]
-    public class PlayerController : MonoBehaviour
+    //[RequireComponent(typeof(Player))]
+    public class PlayerController : Character
     {
-        private Player player;
+        public bool isLockedOn = false;
 
-        private void Awake()
-        {
-            player = GetComponent<Player>();
-        }
+        private float _horizontal;
+        private float _vertical;
+
+        
 
         private void Start()
         {
@@ -20,7 +21,26 @@ namespace SotD.Characters.Player
 
         private void Update()
         {
-            // Read input, tick simple logic, or forward to a state machine (when added)
+            _horizontal = playerInput.GetHorizontalInput();
+            _vertical = playerInput.GetVerticalInput();
+
+            animator.SetBool("isLockedOn", isLockedOn);
+
+            if (isLockedOn)
+            {
+                characterAnimation.UpdateLockedOnMovementAnimation(_horizontal, _vertical);
+            }
+            else
+            {
+                Vector3 move = new Vector3(_horizontal, 0, _vertical);
+                characterAnimation.UpdateFreeMovementAnimation(move);
+            }
         }
+        private void FixedUpdate()
+        {
+            Vector3 dir = new Vector3(_horizontal, 0.0f, _vertical);
+            movement.Move(dir, speed);
+        }
+
     }
 }
