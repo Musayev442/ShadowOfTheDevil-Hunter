@@ -1,7 +1,7 @@
 using UnityEngine;
 
-public interface IMovement
+public interface IMovable
 {
     void Move(Vector3 direction, float speed);
-    void Jump(float jumpForce);
+    void RotateTowards(Vector3 direction);
 }

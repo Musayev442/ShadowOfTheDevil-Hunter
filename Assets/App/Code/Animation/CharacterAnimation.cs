@@ -8,11 +8,17 @@ public class CharacterAnimation : ICharacterAnimation
     {
         this.animator = animator;
     }
-    public void UpdateFreeMovementAnimation(Vector3 movement)
+   
+    private float CalculateSmoothedSpeed(Vector3 movement)
     {
         float speed = Mathf.Clamp01(movement.magnitude);
         float currentAnimSpeed = animator.GetFloat("Speed");
-        float smoothedSpeed = Mathf.MoveTowards(currentAnimSpeed, speed, Time.deltaTime * 5f);
+        return Mathf.MoveTowards(currentAnimSpeed, speed, Time.deltaTime * 5f);
+    }
+
+    public void UpdateFreeMovementAnimation(Vector3 movement)
+    {
+        float smoothedSpeed = CalculateSmoothedSpeed(movement);
         animator.SetFloat("Speed", smoothedSpeed);
 
 
@@ -24,5 +30,14 @@ public class CharacterAnimation : ICharacterAnimation
     {
         animator.SetFloat("Horizontal", horizontal);
         animator.SetFloat("Vertical", vertical);
+    }
+
+    public void UpdateJumpAnimation(Rigidbody rb, bool isJumping, bool isFalling, bool isGrounded)
+    {
+        //Debug.Log($"Jumping: {isJumping}, Grounded: {isGrounded}, Velocity Y: {rb.linearVelocity.y}");
+        animator.SetBool("isJumping", true);
+        animator.SetBool("isFalling", isFalling);
+        animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isJumping", false);
     }
 }

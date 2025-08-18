@@ -1,8 +1,9 @@
+using App.Code.Movement.Interfaces;
 using SotD.Characters;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Movement : IMovement
+public class Movement : IMovable
 {
     private Rigidbody rb;
     public Movement(Rigidbody rb)
@@ -10,20 +11,19 @@ public class Movement : IMovement
         this.rb = rb;
     }
 
-    public void Jump(float jumpForce)
-    {
-        throw new System.NotImplementedException();
-    }
     public void Move(Vector3 direction, float speed)
     {
-        // Normalize to avoid scaling issues
-        if (direction.sqrMagnitude < 1e-6f) return;
-        direction.Normalize();
-
         // Position
         Vector3 movement = direction * speed * Time.fixedDeltaTime;
         Vector3 newPos = rb.position + movement;
         rb.MovePosition(newPos);
+    }
+
+    public void RotateTowards(Vector3 direction)
+    {
+        // Normalize to avoid scaling issues
+        if (direction.sqrMagnitude < 1e-6f) return;
+        direction.Normalize();
 
         // Rotation (face forward)
         Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
@@ -34,7 +34,7 @@ public class Movement : IMovement
             targetRotation,
             720f * Time.fixedDeltaTime // turning speed in degrees/sec
         );
+
         rb.MoveRotation(smoothed);
     }
-
 }

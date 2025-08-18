@@ -11,8 +11,9 @@ namespace SotD.Characters
         public float speed = 5f;
 
         protected IPlayerInput playerInput;
-        protected IMovement movement;
+        protected IMovable movement;
         protected ICharacterAnimation characterAnimation;
+
         private void Awake()
         {
             playerInput = new Input_PC();
