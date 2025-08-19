@@ -24,6 +24,7 @@ public class CharacterMover : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         bool sprint = Input.GetKey(KeyCode.LeftShift);
+        bool walk = Input.GetKey(KeyCode.LeftControl);
 
         Vector3 inputDir = new Vector3(h, 0, v).normalized;
 
@@ -32,7 +33,7 @@ public class CharacterMover : MonoBehaviour
         if (inputDir.sqrMagnitude > 0.01f)
         {
             targetSpeed = sprint ? sprintSpeed :
-                          (inputDir.magnitude > 0.5f ? runSpeed : walkSpeed);
+                          (walk? walkSpeed : runSpeed);
         }
 
         // Smooth velocity
