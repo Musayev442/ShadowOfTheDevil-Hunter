@@ -43,7 +43,7 @@ public class CharacterMover : MonoBehaviour
             acceleration * Time.deltaTime
         );
 
-        _rb.velocity = new Vector3(_velocity.x, _rb.velocity.y, _velocity.z);
+        _rb.linearVelocity = new Vector3(_velocity.x, _rb.linearVelocity.y, _velocity.z);
 
         // Face move direction
         if (inputDir.sqrMagnitude > 0.001f)

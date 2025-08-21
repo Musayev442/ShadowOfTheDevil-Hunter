@@ -6,4 +6,5 @@ public interface IPlayerInput
     float GetVerticalInput();
     bool GetJumpInput();
     bool GetSprintInput();
+    bool GetWalkInput();
 }

@@ -1112,8 +1112,12 @@ MonoBehaviour:
   character_rb: {fileID: 725129378500946865}
   speed: 3
   cameraTransform: {fileID: 1096228789}
-  isLockedOn: 0
+  walkSpeed: 3
+  runSpeed: 6
+  sprintSpeed: 10
   jumpForce: 5
+  rollForce: 7
+  isLockedOn: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
