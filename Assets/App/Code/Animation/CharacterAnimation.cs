@@ -4,6 +4,8 @@ using UnityEngine.Windows;
 public class CharacterAnimation : ICharacterAnimation
 {
     private Animator animator;
+    private float animatorSpeed;
+    private float speedVelocity;
     public CharacterAnimation(Animator animator)
     {
         this.animator = animator;
@@ -18,12 +20,16 @@ public class CharacterAnimation : ICharacterAnimation
 
     public void UpdateFreeMovementAnimation(Vector3 movement)
     {
-        float smoothedSpeed = CalculateSmoothedSpeed(movement);
-        animator.SetFloat("Speed", smoothedSpeed);
+        // Normalize animator speed (0 = idle, 0.4 = walk, 1 = run)
+        float targetAnimatorSpeed = movement.magnitude * (_isWalking ? 0.4f : 1f);
+        animatorSpeed = Mathf.SmoothDamp(animatorSpeed, targetAnimatorSpeed, ref speedVelocity, 0.1f);
 
+        // Update animator
+        animator.SetFloat("Speed", animatorSpeed);
 
-        //bool isMoving = movement.magnitude > 0.1f;
-        //animator.SetBool("isMoving", isMoving);
+        //float smoothedSpeed = CalculateSmoothedSpeed(movement);
+        //animator.SetFloat("Speed", smoothedSpeed);
+
     }
 
     public void UpdateLockedOnMovementAnimation(float horizontal, float vertical)

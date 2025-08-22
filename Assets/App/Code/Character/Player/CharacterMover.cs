@@ -1,59 +1,55 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class CharacterMover : MonoBehaviour
+public class CharacterMovement : MonoBehaviour
 {
+    [Header("Movement Settings")]
     public float walkSpeed = 2f;
-    public float runSpeed = 4f;
-    public float sprintSpeed = 6f;
+    public float runSpeed = 5f;
     public float acceleration = 10f;
 
-    private Rigidbody _rb;
-    private Animator _anim;
-    private Vector3 _velocity;
+    [Header("References")]
+    public Rigidbody rb;
+    public Animator animator;
 
-    void Awake()
-    {
-        _rb = GetComponent<Rigidbody>();
-        _anim = GetComponent<Animator>();
-    }
+    private Vector3 inputDirection;
+    private float currentSpeed;
+    private float animatorSpeed;
+    private float speedVelocity;
 
     void Update()
     {
-        // Raw input
+        // Input direction
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-        bool sprint = Input.GetKey(KeyCode.LeftShift);
-        bool walk = Input.GetKey(KeyCode.LeftControl);
+        inputDirection = new Vector3(h, 0, v).normalized;
 
-        Vector3 inputDir = new Vector3(h, 0, v).normalized;
+        // Walk override
+        bool isWalking = Input.GetKey(KeyCode.LeftControl);
+        float targetSpeed = isWalking ? walkSpeed : runSpeed;
 
-        // Decide target speed
-        float targetSpeed = 0f;
-        if (inputDir.sqrMagnitude > 0.01f)
+        // Smooth movement speed
+        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed * inputDirection.magnitude, acceleration * Time.deltaTime);
+
+        // Normalize animator speed (0 = idle, 0.4 = walk, 1 = run)
+        float targetAnimatorSpeed = inputDirection.magnitude * (isWalking ? 0.4f : 1f);
+        animatorSpeed = Mathf.SmoothDamp(animatorSpeed, targetAnimatorSpeed, ref speedVelocity, 0.1f);
+
+        // Update animator
+        animator.SetFloat("Speed", animatorSpeed);
+    }
+
+    void FixedUpdate()
+    {
+        // Apply movement
+        Vector3 velocity = inputDirection * currentSpeed;
+        rb.linearVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
+
+        // Rotate toward movement direction
+        if (inputDirection != Vector3.zero)
         {
-            targetSpeed = sprint ? sprintSpeed :
-                          (walk? walkSpeed : runSpeed);
+            Quaternion targetRotation = Quaternion.LookRotation(inputDirection);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, 10f * Time.fixedDeltaTime));
         }
-
-        // Smooth velocity
-        _velocity = Vector3.MoveTowards(
-            new Vector3(_velocity.x, 0, _velocity.z),
-            inputDir * targetSpeed,
-            acceleration * Time.deltaTime
-        );
-
-        _rb.linearVelocity = new Vector3(_velocity.x, _rb.linearVelocity.y, _velocity.z);
-
-        // Face move direction
-        if (inputDir.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(inputDir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
-        }
-
-        // Normalize to feed animator
-        float speed01 = Mathf.Clamp01(_velocity.magnitude / sprintSpeed);
-        _anim.SetFloat("Speed", speed01, 0.1f, Time.deltaTime);
     }
 }

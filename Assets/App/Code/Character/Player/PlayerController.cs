@@ -35,9 +35,12 @@ namespace SotD.Characters.Player
         public Transform groundCheck; // Position to check if the character is grounded
         public float groundCheckRadius = 0.2f; // Radius for ground check
 
+        public float acceleration = 10f;
+        private float currentSpeed;
+        
 
 
-            Vector3 _velocity;
+        Vector3 _velocity;
         IJumper _jumper;
 
         private void Start()
@@ -58,31 +61,18 @@ namespace SotD.Characters.Player
             
             if (inputDir.sqrMagnitude > 0.01f)
             {
-                targetSpeed = _isSprinting ? sprintSpeed :
-                              (_isWalking ? walkSpeed : runSpeed);
+                targetSpeed = _isWalking ? walkSpeed : runSpeed;
             }
-            _velocity = Vector3.MoveTowards(
-              new Vector3(_velocity.x, 0, _velocity.z), // ← Use current velocity
-              inputDir * targetSpeed,
-              10f * Time.deltaTime
-           );
 
-            float speed01 = Mathf.Clamp01(_velocity.magnitude / runSpeed);
-            animator.SetFloat("Speed", _velocity.magnitude, 0.1f, Time.deltaTime);
+            // Smooth movement speed
+            currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed * inputDir.magnitude, acceleration * Time.deltaTime);
 
+            
 
-
-            //animator.SetBool("isLockedOn", isLockedOn);
-
-            //if (isLockedOn)
-            //{
-            //    characterAnimation.UpdateLockedOnMovementAnimation(_horizontal, _vertical);
-            //}
-            //else
-            //{
             //    Vector3 move = new Vector3(_horizontal, 0, _vertical);
-            //    characterAnimation.UpdateFreeMovementAnimation(move);
-            //}
+            characterAnimation.UpdateFreeMovementAnimation(inputDir);
+
+
         }
         private void FixedUpdate()
         {

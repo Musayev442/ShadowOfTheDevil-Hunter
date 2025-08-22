@@ -1081,10 +1081,13 @@ PrefabInstance:
       addedObject: {fileID: 725129378500946865}
     - targetCorrespondingSourceObject: {fileID: 1040718758376033218, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 725129378500946867}
+    - targetCorrespondingSourceObject: {fileID: 1040718758376033218, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 725129378500946864}
     - targetCorrespondingSourceObject: {fileID: 1040718758376033218, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 725129378500946867}
+      addedObject: {fileID: 725129378500946869}
   m_SourcePrefab: {fileID: 100100000, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
 --- !u!1 &725129378500946862 stripped
 GameObject:
@@ -1112,9 +1115,9 @@ MonoBehaviour:
   character_rb: {fileID: 725129378500946865}
   speed: 3
   cameraTransform: {fileID: 1096228789}
-  walkSpeed: 3
-  runSpeed: 6
-  sprintSpeed: 10
+  walkSpeed: 2
+  runSpeed: 4
+  sprintSpeed: 6
   jumpForce: 5
   rollForce: 7
   isLockedOn: 0
@@ -1123,6 +1126,7 @@ MonoBehaviour:
     m_Bits: 64
   groundCheck: {fileID: 2092014354}
   groundCheckRadius: 0.2
+  acceleration: 10
 --- !u!54 &725129378500946865
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1173,6 +1177,23 @@ CapsuleCollider:
   m_Height: 1.7925711
   m_Direction: 1
   m_Center: {x: -1.26988806e-14, y: 0.8913554, z: 1.1337204e-21}
+--- !u!114 &725129378500946869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 725129378500946862}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36ea6f36915ce6541bfdc0590fc08c00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkSpeed: 2
+  runSpeed: 4
+  acceleration: 10
+  rb: {fileID: 725129378500946865}
+  animator: {fileID: 725129378500946863}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
