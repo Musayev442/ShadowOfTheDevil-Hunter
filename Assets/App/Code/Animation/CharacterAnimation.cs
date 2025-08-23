@@ -1,7 +1,8 @@
+using Assets.App.Code.Animation.Interfaces;
 using UnityEngine;
 using UnityEngine.Windows;
 
-public class CharacterAnimation : ICharacterAnimation
+public class CharacterAnimation : ISprintAnimation, IFreeMovementAnimation
 {
     private Animator animator;
     private float animatorSpeed;
@@ -18,10 +19,10 @@ public class CharacterAnimation : ICharacterAnimation
         return Mathf.MoveTowards(currentAnimSpeed, speed, Time.deltaTime * 5f);
     }
 
-    public void UpdateFreeMovementAnimation(Vector3 movement)
+    public void UpdateFreeMovementAnimation(Vector3 movement, bool isWalking)
     {
         // Normalize animator speed (0 = idle, 0.4 = walk, 1 = run)
-        float targetAnimatorSpeed = movement.magnitude * (_isWalking ? 0.4f : 1f);
+        float targetAnimatorSpeed = movement.magnitude * (isWalking ? 0.4f : 1f);
         animatorSpeed = Mathf.SmoothDamp(animatorSpeed, targetAnimatorSpeed, ref speedVelocity, 0.1f);
 
         // Update animator
@@ -45,5 +46,10 @@ public class CharacterAnimation : ICharacterAnimation
         animator.SetBool("isFalling", isFalling);
         animator.SetBool("isGrounded", isGrounded);
         animator.SetBool("isJumping", false);
+    }
+
+    public void UpdateSprintAnimation(bool isSprinting)
+    {
+        animator.SetBool("isSprinting", isSprinting);
     }
 }

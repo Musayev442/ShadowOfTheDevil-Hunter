@@ -6,30 +6,26 @@ using UnityEngine.InputSystem;
 public class Movement : IMovable
 {
     private Rigidbody _rb;
-    private float acceleration = 10f;
     private Vector3 _velocity;
+    private float acceleration = 10f;
+    private float speed;
 
-    public Movement(Rigidbody rb)
+    public Movement(Rigidbody rb, float speed)
     {
         this._rb = rb;
+        this.speed = speed;
     }
 
     public void Move(Vector3 direction, float targetSpeed)
     {
         // Smooth velocity
         _velocity = Vector3.MoveTowards(
-           new Vector3(_velocity.x, 0, _velocity.z), // ← Use current velocity
+           new Vector3(_velocity.x, 0, _velocity.z),
            direction * targetSpeed,
            acceleration * Time.deltaTime
         );
 
         _rb.linearVelocity = new Vector3(_velocity.x, _rb.linearVelocity.y, _velocity.z);
-
-
-        // Position
-        //Vector3 movement = direction * speed * Time.fixedDeltaTime;
-        //Vector3 newPos = rb.position + movement;
-        //rb.MovePosition(newPos);
     }
 
     public void RotateTowards(Vector3 direction)
@@ -50,4 +46,5 @@ public class Movement : IMovable
 
         _rb.MoveRotation(smoothed);
     }
+
 }

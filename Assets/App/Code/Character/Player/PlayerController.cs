@@ -1,7 +1,12 @@
-﻿using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using App.Code.Movement;
 using App.Code.Movement.Interfaces;
-using App.Code.Movement;
+using Assets.App.Code.Animation.Interfaces;
+using Assets.App.Code.Character.System;
+using Assets.App.Code.Character.System.Interfaces;
+using Assets.App.Code.Movement;
+using Assets.App.Code.StateMachine;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace SotD.Characters.Player
 {
@@ -9,47 +14,59 @@ namespace SotD.Characters.Player
     //[RequireComponent(typeof(Player))]
     public class PlayerController : Character
     {
+        // === Inspector Settings ===
         [Header("Player Settings")]
-        [SerializeField] private Transform cameraTransform;
+        [SerializeField] private Transform _cameraTransform;
 
         [Header("Movement")]
-        [SerializeField] private float walkSpeed = 2f;
-        [SerializeField] private float runSpeed = 4f;
-        [SerializeField] private float sprintSpeed = 6f;
+        [SerializeField] private float _walkSpeed = 2f;
+        [SerializeField] private float _runSpeed = 4f;
+        [SerializeField] private float _sprintSpeed = 6f;
+        [SerializeField] private float _acceleration = 10f;
 
-        [Header("Combat/Actions")]
-        [SerializeField] private float jumpForce = 5f;
-        [SerializeField] private float rollForce = 7f;
+        [Header("Combat / Actions")]
+        [SerializeField] private float _jumpForce = 5f;
+        [SerializeField] private float _rollForce = 7f;
 
-        public bool isLockedOn = false;
+        [Header("Ground Detection")]
+        [SerializeField] private LayerMask _groundLayer;     // Layer for ground detection
+        [SerializeField] private Transform _groundCheck;     // Position to check if the character is grounded
+        [SerializeField] private float _groundCheckRadius = 0.2f;
 
+        // === Runtime State ===
+        private bool _isLockedOn = false;
         private bool _isSprinting = false;
         private bool _isJumping = false;
         private bool _isWalking = false;
         private bool _isGrounded = false;
-        private float targetSpeed = 0f;
+
         private float _horizontal = 0f;
         private float _vertical = 0f;
+        private float _targetSpeed = 0f;
+        private float _currentSpeed;
 
-        public LayerMask groundLayer; // Layer for ground detection
-        public Transform groundCheck; // Position to check if the character is grounded
-        public float groundCheckRadius = 0.2f; // Radius for ground check
-
-        public float acceleration = 10f;
-        private float currentSpeed;
-        
+        // === Systems / Interfaces ===
+        private StateMachine _stateMachine;
+        private IJumper _jumper;
+        private IStamina _stamina;
+        private ISprintable _sprint;
 
 
-        Vector3 _velocity;
-        IJumper _jumper;
 
         private void Start()
         {
-            _jumper = new BasicJump(character_rb);
+            _jumper = new BasicJump(characterRigidbody);
+            sprintAnimation = new CharacterAnimation(animator);
+            _stamina = new StaminaSystem(100f);
+            _sprint = new SprintController(_stamina, characterRigidbody, _sprintSpeed, 10f);
+            _stateMachine = new StateMachine();
+            _stateMachine.ChangeState(new PlayerIdle(this));
         }
 
         private void Update()
         {
+            _stateMachine.UpdateState();
+
             _horizontal = playerInput.GetHorizontalInput();
             _vertical = playerInput.GetVerticalInput();
             _isSprinting = playerInput.GetSprintInput();
@@ -57,32 +74,35 @@ namespace SotD.Characters.Player
             _isWalking = playerInput.GetWalkInput();
 
             Vector3 inputDir = new Vector3(_horizontal, 0, _vertical).normalized;
-            // Decide target speed
-            
-            if (inputDir.sqrMagnitude > 0.01f)
+
+
+
+            if (_isSprinting && _sprint.CanSprint)
             {
-                targetSpeed = _isWalking ? walkSpeed : runSpeed;
+                _sprint.Sprint(inputDir);
+                _targetSpeed = _sprintSpeed;
+                sprintAnimation.UpdateSprintAnimation(_isSprinting);
             }
-
-            // Smooth movement speed
-            currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed * inputDir.magnitude, acceleration * Time.deltaTime);
-
-            
-
-            //    Vector3 move = new Vector3(_horizontal, 0, _vertical);
-            characterAnimation.UpdateFreeMovementAnimation(inputDir);
+            else
+            {
+                if (inputDir.sqrMagnitude > 0.01f)
+                {
+                    _targetSpeed = _isWalking ? _walkSpeed : _runSpeed;
+                }
+                _stamina.Regenerate(5f * Time.deltaTime);
+                freeMovementAnimation.UpdateFreeMovementAnimation(inputDir, _isWalking);
+            }
 
 
         }
         private void FixedUpdate()
         {
             Vector3 dir = new Vector3(_horizontal, 0.0f, _vertical);
-            Vector3 moveDir = GetCameraRelativeDirection(dir, cameraTransform);
+            Vector3 moveDir = GetCameraRelativeDirection(dir, _cameraTransform);
 
-            movement.Move(moveDir, targetSpeed);
             movement.RotateTowards(moveDir);
-
-            _jumper.Jump(jumpForce, _isGrounded);
+            movement.Move(moveDir, _targetSpeed);
+            _jumper.Jump(_jumpForce, _isGrounded);
         }
 
         public Vector3 GetCameraRelativeDirection(Vector3 inputDir, Transform cameraTransform)

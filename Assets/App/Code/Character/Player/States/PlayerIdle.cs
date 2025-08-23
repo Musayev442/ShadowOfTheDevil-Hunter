@@ -1,9 +1,24 @@
+using Assets.App.Code.StateMachine;
+using SotD.Characters;
+using SotD.Characters.Player;
 using UnityEngine;
 
-public interface PlayerIdle
+public class PlayerIdle : IState
 {
-    void Enter();
-    void Exit();
-    void Update();
-    bool CanTransition(PlayerIdle newState);
+    private readonly Character character;
+
+    public PlayerIdle(PlayerController player)
+    {
+        this.character = player;
+    }
+
+    public void Enter() { }
+
+    public void Execute()
+    {
+        
+    }
+
+    public void Exit() { }
 }
+
