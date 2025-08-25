@@ -8,12 +8,11 @@ public class Movement : IMovable
     private Rigidbody _rb;
     private Vector3 _velocity;
     private float acceleration = 10f;
-    private float speed;
 
-    public Movement(Rigidbody rb, float speed)
+    public Movement(Rigidbody rb, float acceleration)
     {
         this._rb = rb;
-        this.speed = speed;
+        this.acceleration = acceleration;
     }
 
     public void Move(Vector3 direction, float targetSpeed)
@@ -22,7 +21,7 @@ public class Movement : IMovable
         _velocity = Vector3.MoveTowards(
            new Vector3(_velocity.x, 0, _velocity.z),
            direction * targetSpeed,
-           acceleration * Time.deltaTime
+           acceleration * Time.fixedDeltaTime
         );
 
         _rb.linearVelocity = new Vector3(_velocity.x, _rb.linearVelocity.y, _velocity.z);

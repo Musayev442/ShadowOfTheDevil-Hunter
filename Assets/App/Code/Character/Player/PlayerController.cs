@@ -1,12 +1,14 @@
 ﻿using App.Code.Movement;
 using App.Code.Movement.Interfaces;
 using Assets.App.Code.Animation.Interfaces;
+using Assets.App.Code.Character.Player.States;
 using Assets.App.Code.Character.System;
 using Assets.App.Code.Character.System.Interfaces;
 using Assets.App.Code.Movement;
 using Assets.App.Code.StateMachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 namespace SotD.Characters.Player
 {
@@ -22,7 +24,6 @@ namespace SotD.Characters.Player
         [SerializeField] private float _walkSpeed = 2f;
         [SerializeField] private float _runSpeed = 4f;
         [SerializeField] private float _sprintSpeed = 6f;
-        [SerializeField] private float _acceleration = 10f;
 
         [Header("Combat / Actions")]
         [SerializeField] private float _jumpForce = 5f;
@@ -33,71 +34,82 @@ namespace SotD.Characters.Player
         [SerializeField] private Transform _groundCheck;     // Position to check if the character is grounded
         [SerializeField] private float _groundCheckRadius = 0.2f;
 
+        // State Machine
+        [Header("State Machine")]
+        [HideInInspector] public StateMachine stateMachine;
+
+        // States
+        [HideInInspector] public PlayerIdle idleState;
+        [HideInInspector] public PlayerWalk walkingState;
+        [HideInInspector] public PlayerRun runningState;
+        [HideInInspector] public PlayerJump jumpingState;
+
+
+
         // === Runtime State ===
+        // Input values (cached once per frame)
+        [HideInInspector] public float horizontal;
+        [HideInInspector] public float vertical;
+        [HideInInspector] public bool isJumpPressed;
+        [HideInInspector] public bool isSprinting;
+        [HideInInspector] public bool isWalking;
+        [HideInInspector] public Vector2 movementInput;
+        [HideInInspector] public float movementMagnitude;
+
         private bool _isLockedOn = false;
-        private bool _isSprinting = false;
-        private bool _isJumping = false;
         private bool _isWalking = false;
         private bool _isGrounded = false;
 
-        private float _horizontal = 0f;
-        private float _vertical = 0f;
         private float _targetSpeed = 0f;
         private float _currentSpeed;
 
         // === Systems / Interfaces ===
-        private StateMachine _stateMachine;
-        private IJumper _jumper;
-        private IStamina _stamina;
+        private IPlayerInput playerInput;
         private ISprintable _sprint;
+        private IStamina _stamina;
+        private IJumper _jumper;
 
 
 
         private void Start()
         {
+            playerInput = new Input_PC();
             _jumper = new BasicJump(characterRigidbody);
             sprintAnimation = new CharacterAnimation(animator);
             _stamina = new StaminaSystem(100f);
             _sprint = new SprintController(_stamina, characterRigidbody, _sprintSpeed, 10f);
-            _stateMachine = new StateMachine();
-            _stateMachine.ChangeState(new PlayerIdle(this));
+            stateMachine = new StateMachine();
+            stateMachine.ChangeState(new PlayerIdle(this));
         }
 
         private void Update()
         {
-            _stateMachine.UpdateState();
+            HandleInput();
 
-            _horizontal = playerInput.GetHorizontalInput();
-            _vertical = playerInput.GetVerticalInput();
-            _isSprinting = playerInput.GetSprintInput();
-            _isJumping = playerInput.GetJumpInput();
-            _isWalking = playerInput.GetWalkInput();
-
-            Vector3 inputDir = new Vector3(_horizontal, 0, _vertical).normalized;
+            stateMachine.UpdateState();
 
 
-
-            if (_isSprinting && _sprint.CanSprint)
+            if (isSprinting && _sprint.CanSprint)
             {
-                _sprint.Sprint(inputDir);
+                _sprint.Sprint(movementInput);
                 _targetSpeed = _sprintSpeed;
-                sprintAnimation.UpdateSprintAnimation(_isSprinting);
+                sprintAnimation.UpdateSprintAnimation(isSprinting);
             }
             else
             {
-                if (inputDir.sqrMagnitude > 0.01f)
+                if (movementMagnitude > 0.01f)
                 {
-                    _targetSpeed = _isWalking ? _walkSpeed : _runSpeed;
+                    _targetSpeed = isWalking ? _walkSpeed : _runSpeed;
                 }
                 _stamina.Regenerate(5f * Time.deltaTime);
-                freeMovementAnimation.UpdateFreeMovementAnimation(inputDir, _isWalking);
+                freeMovementAnimation.UpdateFreeMovementAnimation(movementInput, isWalking);
             }
 
 
         }
         private void FixedUpdate()
         {
-            Vector3 dir = new Vector3(_horizontal, 0.0f, _vertical);
+            Vector3 dir = new Vector3(horizontal, 0.0f, vertical);
             Vector3 moveDir = GetCameraRelativeDirection(dir, _cameraTransform);
 
             movement.RotateTowards(moveDir);
@@ -119,6 +131,18 @@ namespace SotD.Characters.Player
             Vector3 moveDir = camForward * inputDir.z + camRight * inputDir.x;
 
             return moveDir.normalized;
+        }
+
+        private void HandleInput()
+        {
+            horizontal = playerInput.GetHorizontalInput();
+            vertical = playerInput.GetVerticalInput();
+            movementInput = new Vector2(horizontal, vertical);
+            movementMagnitude = movementInput.magnitude;
+
+            isWalking = playerInput.GetWalkInput();
+            isSprinting = playerInput.GetSprintInput();
+            isJumpPressed = playerInput.GetJumpInput();
         }
     }
 }

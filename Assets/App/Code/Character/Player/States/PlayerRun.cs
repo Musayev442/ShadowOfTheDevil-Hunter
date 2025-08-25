@@ -1,9 +1,20 @@
+using Assets.App.Code.StateMachine;
 using UnityEngine;
 
-public interface PlayerRun
+public class PlayerRun : IState
 {
-    void Enter();
-    void Exit();
-    void Update();
-    bool CanTransition(PlayerIdle newState);
+    public void Enter()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Execute()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Exit()
+    {
+        throw new System.NotImplementedException();
+    }
 }

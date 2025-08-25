@@ -9,23 +9,21 @@ namespace SotD.Characters
         [Header("Modules")]
         [SerializeField] protected Animator animator;
         [SerializeField] protected new Rigidbody characterRigidbody;
+        [SerializeField] protected float _acceleration = 10f;
 
-        public IFreeMovementAnimation freeMovementAnimation;
 
-        public float speed = 5f;
 
 
         protected HealthSystem health;
-        protected IPlayerInput playerInput;
         protected IMovable movement;
         protected ISprintAnimation sprintAnimation;
+        protected IFreeMovementAnimation freeMovementAnimation;
 
         private int maxHealth = 100;
 
         private void Awake()
         {
-            playerInput = new Input_PC();
-            movement = new Movement(characterRigidbody, speed);
+            movement = new Movement(characterRigidbody, _acceleration);
             freeMovementAnimation = new CharacterAnimation(animator);
         }
         private void Start()
