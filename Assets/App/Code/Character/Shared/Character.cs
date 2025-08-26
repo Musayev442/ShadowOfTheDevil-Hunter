@@ -7,15 +7,13 @@ namespace SotD.Characters
     public abstract class Character : MonoBehaviour
     {
         [Header("Modules")]
-        [SerializeField] protected Animator animator;
-        [SerializeField] protected new Rigidbody characterRigidbody;
+        [SerializeField] public Animator animator;
+        [SerializeField] public Rigidbody rb;
         [SerializeField] protected float _acceleration = 10f;
 
-
-
+        public IMovable movement;
 
         protected HealthSystem health;
-        protected IMovable movement;
         protected ISprintAnimation sprintAnimation;
         protected IFreeMovementAnimation freeMovementAnimation;
 
@@ -23,7 +21,7 @@ namespace SotD.Characters
 
         private void Awake()
         {
-            movement = new Movement(characterRigidbody, _acceleration);
+            movement = new Movement(rb, _acceleration);
             freeMovementAnimation = new CharacterAnimation(animator);
         }
         private void Start()

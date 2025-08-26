@@ -23,7 +23,6 @@ public class Movement : IMovable
            direction * targetSpeed,
            acceleration * Time.fixedDeltaTime
         );
-
         _rb.linearVelocity = new Vector3(_velocity.x, _rb.linearVelocity.y, _velocity.z);
     }
 
@@ -42,8 +41,6 @@ public class Movement : IMovable
             targetRotation,
             720f * Time.fixedDeltaTime // turning speed in degrees/sec
         );
-
         _rb.MoveRotation(smoothed);
     }
-
 }

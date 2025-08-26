@@ -3,11 +3,11 @@ using SotD.Characters;
 using SotD.Characters.Player;
 using UnityEngine;
 
-public class PlayerIdle : IState
+public class PlayerIdleState : IState
 {
     private PlayerController player;
 
-    public PlayerIdle(PlayerController player)
+    public PlayerIdleState(PlayerController player)
     {
         this.player = player;
     }
@@ -17,7 +17,6 @@ public class PlayerIdle : IState
         Debug.Log("Player entered Idle state");
         // Animator parameters are handled in PlayerController.UpdateAnimatorParameters()
     }
-
     public void Execute()
     {
         // Check for transitions using cached input
@@ -27,16 +26,27 @@ public class PlayerIdle : IState
             {
                 player.stateMachine.ChangeState(player.walkingState);
             }
+            else if (player.isSprinting)
+            {
+                player.stateMachine.ChangeState(player.sprintingState);
+            }
             else
             {
+                // Default movement is running
                 player.stateMachine.ChangeState(player.runningState);
             }
         }
 
-        if (player.isJumpPressed)
+        if (player.jumpPressed)
         {
             player.stateMachine.ChangeState(player.jumpingState);
         }
+    }
+
+    public void ExecutePhysics()
+    {
+        // PHYSICS ONLY - No movement in idle state
+        // Could add idle physics like slight swaying, breathing animation, etc.
     }
 
     public void Exit()

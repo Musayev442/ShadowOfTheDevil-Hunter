@@ -18,5 +18,10 @@ namespace Assets.App.Code.StateMachine
         {
             currentState?.Execute();
         }
+
+        public void UpdatePhysics()
+        {
+            currentState?.ExecutePhysics();
+        }
     }
 }

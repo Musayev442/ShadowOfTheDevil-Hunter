@@ -20,29 +20,31 @@ namespace SotD.Characters.Player
         [Header("Player Settings")]
         [SerializeField] private Transform _cameraTransform;
 
-        [Header("Movement")]
-        [SerializeField] private float _walkSpeed = 2f;
-        [SerializeField] private float _runSpeed = 4f;
-        [SerializeField] private float _sprintSpeed = 6f;
+        [Header("Movement Settings")]
+        public float walkSpeed = 2f;
+        public float runSpeed = 4f;
+        public float sprintSpeed = 6f;
+        public float jumpForce = 10f;
+        public float airControlSpeed = 2f;
 
         [Header("Combat / Actions")]
         [SerializeField] private float _jumpForce = 5f;
         [SerializeField] private float _rollForce = 7f;
 
         [Header("Ground Detection")]
-        [SerializeField] private LayerMask _groundLayer;     // Layer for ground detection
-        [SerializeField] private Transform _groundCheck;     // Position to check if the character is grounded
-        [SerializeField] private float _groundCheckRadius = 0.2f;
+        public LayerMask groundLayer = 1;
+        public float groundCheckDistance = 0.1f;
 
         // State Machine
         [Header("State Machine")]
         [HideInInspector] public StateMachine stateMachine;
 
         // States
-        [HideInInspector] public PlayerIdle idleState;
-        [HideInInspector] public PlayerWalk walkingState;
-        [HideInInspector] public PlayerRun runningState;
-        [HideInInspector] public PlayerJump jumpingState;
+        [HideInInspector] public PlayerIdleState idleState;
+        [HideInInspector] public PlayerWalkingState walkingState;
+        [HideInInspector] public PlayerRunningState runningState;
+        [HideInInspector] public PlayerJumpingState jumpingState;
+        [HideInInspector] public PlayerSprintingState sprintingState;
 
 
 
@@ -50,18 +52,13 @@ namespace SotD.Characters.Player
         // Input values (cached once per frame)
         [HideInInspector] public float horizontal;
         [HideInInspector] public float vertical;
-        [HideInInspector] public bool isJumpPressed;
+        [HideInInspector] public bool jumpPressed;
         [HideInInspector] public bool isSprinting;
         [HideInInspector] public bool isWalking;
+        [HideInInspector] public Vector3 movementDirection;
         [HideInInspector] public Vector2 movementInput;
         [HideInInspector] public float movementMagnitude;
 
-        private bool _isLockedOn = false;
-        private bool _isWalking = false;
-        private bool _isGrounded = false;
-
-        private float _targetSpeed = 0f;
-        private float _currentSpeed;
 
         // === Systems / Interfaces ===
         private IPlayerInput playerInput;
@@ -74,47 +71,52 @@ namespace SotD.Characters.Player
         private void Start()
         {
             playerInput = new Input_PC();
-            _jumper = new BasicJump(characterRigidbody);
+            _jumper = new BasicJump(rb);
             sprintAnimation = new CharacterAnimation(animator);
             _stamina = new StaminaSystem(100f);
-            _sprint = new SprintController(_stamina, characterRigidbody, _sprintSpeed, 10f);
+            _sprint = new SprintController(_stamina, rb, sprintSpeed, 10f);
+
+
+            // Initialize state machine
             stateMachine = new StateMachine();
-            stateMachine.ChangeState(new PlayerIdle(this));
+
+            // Create states
+            idleState = new PlayerIdleState(this);
+            walkingState = new PlayerWalkingState(this);
+            runningState = new PlayerRunningState(this);
+            sprintingState = new PlayerSprintingState(this);
+            jumpingState = new PlayerJumpingState(this);
+
+            // Start with idle state
+            stateMachine.ChangeState(idleState);
         }
 
         private void Update()
         {
             HandleInput();
 
+
+            // Update the current state (handles state transitions and logic)
             stateMachine.UpdateState();
 
 
-            if (isSprinting && _sprint.CanSprint)
-            {
-                _sprint.Sprint(movementInput);
-                _targetSpeed = _sprintSpeed;
-                sprintAnimation.UpdateSprintAnimation(isSprinting);
-            }
-            else
-            {
-                if (movementMagnitude > 0.01f)
-                {
-                    _targetSpeed = isWalking ? _walkSpeed : _runSpeed;
-                }
-                _stamina.Regenerate(5f * Time.deltaTime);
-                freeMovementAnimation.UpdateFreeMovementAnimation(movementInput, isWalking);
-            }
+            // Calculate speed multiplier based on movement type
+            float speedMultiplier = 1f; // Default running
 
+            if (isWalking)
+                speedMultiplier = 0.5f;      // Walking is slower
+            else if (isSprinting)
+                speedMultiplier = 1.5f;      // Sprinting is faster
 
+            // For Blend Tree - use float parameters
+            animator.SetFloat("Speed", movementMagnitude * speedMultiplier);
         }
+
         private void FixedUpdate()
         {
-            Vector3 dir = new Vector3(horizontal, 0.0f, vertical);
-            Vector3 moveDir = GetCameraRelativeDirection(dir, _cameraTransform);
+            // Update physics-based movement in current state
+            stateMachine.UpdatePhysics();
 
-            movement.RotateTowards(moveDir);
-            movement.Move(moveDir, _targetSpeed);
-            _jumper.Jump(_jumpForce, _isGrounded);
         }
 
         public Vector3 GetCameraRelativeDirection(Vector3 inputDir, Transform cameraTransform)
@@ -133,16 +135,23 @@ namespace SotD.Characters.Player
             return moveDir.normalized;
         }
 
+        public bool IsGrounded()
+        {
+            // Simple ground check using raycast
+            return Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, groundLayer);
+        }
+
         private void HandleInput()
         {
             horizontal = playerInput.GetHorizontalInput();
             vertical = playerInput.GetVerticalInput();
             movementInput = new Vector2(horizontal, vertical);
+            movementDirection = GetCameraRelativeDirection(new Vector3(horizontal, 0, vertical), _cameraTransform);
             movementMagnitude = movementInput.magnitude;
 
             isWalking = playerInput.GetWalkInput();
             isSprinting = playerInput.GetSprintInput();
-            isJumpPressed = playerInput.GetJumpInput();
+            jumpPressed = playerInput.GetJumpInput();
         }
     }
 }

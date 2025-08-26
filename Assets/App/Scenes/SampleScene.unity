@@ -1011,6 +1011,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1040718758376033218, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6042313693857532674, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
       propertyPath: m_Controller
       value: 
@@ -1149,20 +1153,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 725129378500946870}
-  characterRigidbody: {fileID: 725129378500946865}
-  speed: 5
-  _cameraTransform: {fileID: 330585546}
-  _walkSpeed: 2
-  _runSpeed: 4
-  _sprintSpeed: 6
+  rb: {fileID: 725129378500946865}
   _acceleration: 10
+  _cameraTransform: {fileID: 330585546}
+  walkSpeed: 2
+  runSpeed: 4
+  sprintSpeed: 6
+  jumpForce: 10
+  airControlSpeed: 2
   _jumpForce: 5
   _rollForce: 7
-  _groundLayer:
+  groundLayer:
     serializedVersion: 2
-    m_Bits: 0
-  _groundCheck: {fileID: 0}
-  _groundCheckRadius: 0.2
+    m_Bits: 64
+  groundCheckDistance: 0.1
+  horizontal: 0
+  vertical: 0
+  jumpPressed: 0
+  isSprinting: 0
+  isWalking: 0
+  movementDirection: {x: 0, y: 0, z: 0}
+  movementInput: {x: 0, y: 0}
+  movementMagnitude: 0
 --- !u!95 &725129378500946870 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 6042313693857532674, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}

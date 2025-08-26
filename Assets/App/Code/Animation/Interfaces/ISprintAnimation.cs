@@ -5,6 +5,8 @@ namespace Assets.App.Code.Animation.Interfaces
 {
     public interface ISprintAnimation
     {
-        void UpdateSprintAnimation(bool isSprinting);
+        void PlaySprint();
+        void StopSprint();
+        bool IsSprinting { get; }
     }
 }

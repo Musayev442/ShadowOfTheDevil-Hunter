@@ -7,6 +7,9 @@ public class CharacterAnimation : ISprintAnimation, IFreeMovementAnimation
     private Animator animator;
     private float animatorSpeed;
     private float speedVelocity;
+
+    public bool IsSprinting => throw new System.NotImplementedException();
+
     public CharacterAnimation(Animator animator)
     {
         this.animator = animator;
@@ -51,5 +54,15 @@ public class CharacterAnimation : ISprintAnimation, IFreeMovementAnimation
     public void UpdateSprintAnimation(bool isSprinting)
     {
         animator.SetBool("isSprinting", isSprinting);
+    }
+
+    public void PlaySprint()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void StopSprint()
+    {
+        throw new System.NotImplementedException();
     }
 }
