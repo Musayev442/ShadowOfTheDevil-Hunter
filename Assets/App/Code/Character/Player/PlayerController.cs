@@ -1,10 +1,13 @@
 ﻿using App.Code.Movement;
 using App.Code.Movement.Interfaces;
+using Assets.App.Code.Animation;
 using Assets.App.Code.Animation.Interfaces;
 using Assets.App.Code.Character.Player.States;
 using Assets.App.Code.Character.System;
 using Assets.App.Code.Character.System.Interfaces;
 using Assets.App.Code.Movement;
+using Assets.App.Code.Scripts.Core.Interfaces;
+using Assets.App.Code.Scripts.Data;
 using Assets.App.Code.StateMachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,11 +17,14 @@ namespace SotD.Characters.Player
 {
     /// <summary>Drives the Player (input, state updates, animation hooks).</summary>
     //[RequireComponent(typeof(Player))]
-    public class PlayerController : Character
+    public class PlayerController : SoulCharacter, IParryable, IBackstabable
     {
         // === Inspector Settings ===
         [Header("Player Settings")]
         [SerializeField] private Transform _cameraTransform;
+
+        [Header("Animation")]
+        public PlayerAnimationHandler AnimationHandler { get; private set; }
 
         [Header("Movement Settings")]
         public float walkSpeed = 2f;
@@ -37,7 +43,7 @@ namespace SotD.Characters.Player
 
         // State Machine
         [Header("State Machine")]
-        [HideInInspector] public StateMachine stateMachine;
+        [HideInInspector] public SoulStateMachine stateMachine;
 
         // States
         [HideInInspector] public PlayerIdleState idleState;
@@ -45,6 +51,10 @@ namespace SotD.Characters.Player
         [HideInInspector] public PlayerRunningState runningState;
         [HideInInspector] public PlayerJumpingState jumpingState;
         [HideInInspector] public PlayerSprintingState sprintingState;
+        [HideInInspector] public PlayerAttackState attackingState;
+        [HideInInspector] public PlayerDeadState deadState;
+        [HideInInspector] public PlayerDodgeState dodgeState;
+        [HideInInspector] public PlayerStaggerState staggerState;
 
 
 
@@ -68,17 +78,35 @@ namespace SotD.Characters.Player
 
 
 
+        [Header("Player Specific")]
+        public int Souls = 0;
+        public int Humanity = 0;
+        public bool IsLockedOn = false;
+
+        private EquipmentSystem equipmentSystem;
+        //private DodgeSystem dodgeSystem;
+        //private ParrySystem parrySystem;
+        public bool CanParry => equipmentSystem?.CurrentWeapon?.CanParry ?? false;
+
+        private void Awake()
+        {
+            // Initialize Animation Handler
+            AnimationHandler = new PlayerAnimationHandler();
+            AnimationHandler.Initialize(this, animator);
+
+            // ... rest of initialization ...
+        }
+
         private void Start()
         {
             playerInput = new Input_PC();
             _jumper = new BasicJump(rb);
             sprintAnimation = new CharacterAnimation(animator);
-            _stamina = new StaminaSystem(100f);
             _sprint = new SprintController(_stamina, rb, sprintSpeed, 10f);
 
 
             // Initialize state machine
-            stateMachine = new StateMachine();
+            stateMachine = new SoulStateMachine();
 
             // Create states
             idleState = new PlayerIdleState(this);
@@ -86,6 +114,7 @@ namespace SotD.Characters.Player
             runningState = new PlayerRunningState(this);
             sprintingState = new PlayerSprintingState(this);
             jumpingState = new PlayerJumpingState(this);
+            attackingState = new PlayerAttackState(this);
 
             // Start with idle state
             stateMachine.ChangeState(idleState);
@@ -95,9 +124,11 @@ namespace SotD.Characters.Player
         {
             HandleInput();
 
-
             // Update the current state (handles state transitions and logic)
             stateMachine.UpdateState();
+
+            // Update animations
+            AnimationHandler.UpdateAnimationState();
 
 
             // Calculate speed multiplier based on movement type
@@ -109,7 +140,7 @@ namespace SotD.Characters.Player
                 speedMultiplier = 1.5f;      // Sprinting is faster
 
             // For Blend Tree - use float parameters
-            animator.SetFloat("Speed", movementMagnitude * speedMultiplier);
+            //animator.SetFloat("Speed", movementMagnitude * speedMultiplier);
         }
 
         private void FixedUpdate()
@@ -152,6 +183,24 @@ namespace SotD.Characters.Player
             isWalking = playerInput.GetWalkInput();
             isSprinting = playerInput.GetSprintInput();
             jumpPressed = playerInput.GetJumpInput();
+        }
+
+        public void OnBackstabbed(DamageData damageData)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void OnParried()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void TakeDamage(DamageData damageData)
+        {
+            if (IsInvulnerable || !IsAlive) return;
+
+            base.TakeDamage(damageData);
+            AnimationHandler.PlayHitReaction(); // Play hit animation
         }
     }
 }

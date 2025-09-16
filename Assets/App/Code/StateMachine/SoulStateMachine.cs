@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Assets.App.Code.StateMachine
 {
-    public class StateMachine
+    public class SoulStateMachine
     {
-        private IState currentState;
+        public IState currentState;
 
         public void ChangeState(IState newState)
         {

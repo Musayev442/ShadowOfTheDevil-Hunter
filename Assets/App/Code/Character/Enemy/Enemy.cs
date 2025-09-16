@@ -4,7 +4,7 @@ using SotD.Characters;
 namespace SotD.Characters.Enemy
 {
     /// <summary>Concrete enemy base; specific enemies can subclass this.</summary>
-    public class Enemy : Character
+    public class Enemy : SoulCharacter
     {
         //[Header("Enemy")]
         /*[SerializeField] private EnemyStats enemyStats;

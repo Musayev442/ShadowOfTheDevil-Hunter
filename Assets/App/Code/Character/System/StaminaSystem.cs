@@ -1,30 +1,46 @@
 ﻿using Assets.App.Code.Character.System.Interfaces;
+using System;
 using System.Collections;
 using UnityEngine;
 
 namespace Assets.App.Code.Character.System
 {
-    public class StaminaSystem : IStamina
+    public class StaminaSystem 
     {
-        public float Current { get; private set; }
-        public float Max { get; private set; }
+        public float MaxStamina { get; private set; }
+        public float CurrentStamina { get; private set; }
+        public float StaminaRegenRate { get; private set; }
 
-        public StaminaSystem(float maxStamina)
+        public event Action<float> OnStaminaChanged;
+
+        public StaminaSystem(float maxStamina, float regenRate = 5f)
         {
-            Max = maxStamina;
-            Current = maxStamina;
+            MaxStamina = maxStamina;
+            CurrentStamina = MaxStamina;
+            StaminaRegenRate = regenRate;
         }
 
-        public bool HasStamina(float amount) => Current >= amount;
-
-        public void Consume(float amount)
+        public bool ConsumeStamina(float amount)
         {
-            Current = Mathf.Max(0, Current - amount);
+            if (CurrentStamina >= amount)
+            {
+                CurrentStamina -= amount;
+                OnStaminaChanged?.Invoke(CurrentStamina);
+                return true;
+            }
+            return false;
         }
 
-        public void Regenerate(float amount)
+        public void RegenerateStamina(float deltaTime)
         {
-            Current = Mathf.Min(Max, Current + amount);
+            CurrentStamina = Mathf.Min(MaxStamina, CurrentStamina + StaminaRegenRate * deltaTime);
+            OnStaminaChanged?.Invoke(CurrentStamina);
+        }
+
+        public void RestoreFullStamina()
+        {
+            CurrentStamina = MaxStamina;
+            OnStaminaChanged?.Invoke(CurrentStamina);
         }
     }
 }

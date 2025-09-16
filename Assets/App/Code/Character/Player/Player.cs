@@ -3,7 +3,7 @@ using UnityEngine;
 namespace SotD.Characters.Player
 {
     /// <summary>Concrete player character. Extend with player-only data/behaviours.</summary>
-    public class Player : Character
+    public class Player : SoulCharacter
     {
         /*[Header("Player")]
         [SerializeField] private PlayerStats playerStats;

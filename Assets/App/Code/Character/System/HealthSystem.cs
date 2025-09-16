@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace Assets.App.Code.Character.System
 {
-    public class HealthSystem : IHealth
+    public class HealthSystem
     {
         public float CurrentHealth { get; private set; }
         public float MaxHealth { get; private set; }
-        public bool IsDead => CurrentHealth <= 0;
+        public bool IsAlive => CurrentHealth <= 0;
 
         public delegate void HealthChanged(float current, float max);
         public event HealthChanged OnHealthChanged;
@@ -23,7 +23,7 @@ namespace Assets.App.Code.Character.System
 
         public void TakeDamage(float amount)
         {
-            if (IsDead) return;
+            if (IsAlive) return;
 
             CurrentHealth -= amount;
             CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth);
@@ -38,7 +38,7 @@ namespace Assets.App.Code.Character.System
 
         public void Heal(float amount)
         {
-            if (IsDead) return;
+            if (IsAlive) return;
 
             CurrentHealth += amount;
             CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth);
@@ -48,7 +48,7 @@ namespace Assets.App.Code.Character.System
 
         public void Die()
         {
-            if (IsDead)
+            if (IsAlive)
             {
                 OnDeath?.Invoke();
                 // Optional: trigger death animation, ragdoll, or respawn

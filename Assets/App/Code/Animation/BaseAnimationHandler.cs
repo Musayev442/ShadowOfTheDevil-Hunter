@@ -5,33 +5,55 @@ namespace Assets.App.Code.Animation
 {
     public abstract class BaseAnimationHandler : IAnimationHandler
     {
-        protected readonly Animator animator;
+        protected Animator animator;
+        protected string currentState;
 
-        protected static readonly int SPEED_PARAM = Animator.StringToHash("Speed");
-        protected static readonly int HORIZONTAL_PARAM = Animator.StringToHash("Horizontal");
-        protected static readonly int VERTICAL_PARAM = Animator.StringToHash("Vertical");
-        protected static readonly int ANIMATION_SPEED_PARAM = Animator.StringToHash("AnimationSpeed");
+        // Animation parameters
+        protected const string MOVEMENT_SPEED = "MoveSpeed";
+        protected const string IS_GROUNDED = "IsGrounded";
+        protected const string ATTACK_TRIGGER = "Attack";
+        protected const string DODGE_TRIGGER = "Dodge";
+        protected const string STAGGER_TRIGGER = "Stagger";
+        protected const string DEATH_TRIGGER = "Die";
+        protected const string IS_DEAD = "IsDead";
 
-        protected float blendDampTime = 0.1f;
-
-        protected BaseAnimationHandler(Animator animator)
+        public virtual void Initialize(Animator animator)
         {
             this.animator = animator;
         }
 
-        public virtual void SetMovementBlendTree(float speed, float horizontal, float vertical)
+        public virtual void UpdateAnimationState()
         {
-            animator.SetFloat(SPEED_PARAM, speed, blendDampTime, Time.deltaTime);
-            animator.SetFloat(HORIZONTAL_PARAM, horizontal, blendDampTime, Time.deltaTime);
-            animator.SetFloat(VERTICAL_PARAM, vertical, blendDampTime, Time.deltaTime);
+            // Base implementation can be overridden
         }
 
-        public void SetAnimationSpeed(float speed)
+        public virtual void SetFloat(string parameter, float value)
         {
-            animator.SetFloat(ANIMATION_SPEED_PARAM, speed);
+            animator.SetFloat(parameter, value);
         }
 
-        public abstract void ResetAnimationStates();
+        public virtual void SetBool(string parameter, bool value)
+        {
+            animator.SetBool(parameter, value);
+        }
+
+        public virtual void SetTrigger(string parameter)
+        {
+            animator.SetTrigger(parameter);
+        }
+
+        public virtual void ResetTrigger(string parameter)
+        {
+            animator.ResetTrigger(parameter);
+        }
+
+        protected virtual void ChangeAnimationState(string newState)
+        {
+            if (currentState == newState) return;
+
+            animator.Play(newState);
+            currentState = newState;
+        }
     }
 
 }

@@ -1,61 +1,114 @@
 ﻿using Assets.App.Code.Animation.Interfaces;
-using System.Collections;
+using SotD.Characters.Player;
+using Assets.App.Code.StateMachine;
 using UnityEngine;
+using Assets.App.Code.Character.Player.States;
 
 namespace Assets.App.Code.Animation
 {
-    public class PlayerAnimationHandler : BaseAnimationHandler, ISprintAnimation, IJumpAnimation
+    public class PlayerAnimationHandler : BaseAnimationHandler
     {
-        private static readonly int SPRINT_PARAM = Animator.StringToHash("Sprint");
-        private static readonly int JUMP_START_TRIGGER = Animator.StringToHash("JumpStart");
-        private static readonly int JUMP_FALLING_TRIGGER = Animator.StringToHash("JumpFalling");
-        private static readonly int JUMP_END_TRIGGER = Animator.StringToHash("JumpEnd");
+        private PlayerController player;
+        private SoulStateMachine soulStateMachine;
 
-        public bool IsSprinting { get; private set; }
-        public bool IsJumping { get; private set; }
+        // Player-specific parameters
+        private const string IS_LOCKED_ON = "IsLockedOn";
+        private const string VERTICAL_INPUT = "Vertical";
+        private const string HORIZONTAL_INPUT = "Horizontal";
+        private const string IS_SPRINTING = "IsSprinting";
+        private const string ATTACK_TYPE = "AttackType";
 
-        public PlayerAnimationHandler(Animator animator) : base(animator) { }
-
-        public void PlaySprint()
+        public void Initialize(PlayerController player, Animator animator)
         {
-            if (!IsSprinting)
+            base.Initialize(animator);
+            this.player = player;
+            this.soulStateMachine = player.stateMachine;
+        }
+
+        public override void UpdateAnimationState()
+        {
+            UpdateMovementAnimation();
+            UpdateCombatAnimation();
+            UpdateStateBasedAnimation();
+        }
+
+        private void UpdateMovementAnimation()
+        {
+            // Set movement speed based on input magnitude
+            float moveSpeed = player.movementMagnitude;
+            SetFloat(MOVEMENT_SPEED, moveSpeed);
+
+            // Set directional inputs for blend trees
+            SetFloat(HORIZONTAL_INPUT, player.movementInput.x);
+            SetFloat(VERTICAL_INPUT, player.movementInput.y);
+
+            // Lock-on state
+            SetBool(IS_LOCKED_ON, player.IsLockedOn);
+        }
+
+        private void UpdateCombatAnimation()
+        {
+            // Update combat-related animations
+            SetBool(IS_GROUNDED, true); // Always grounded for simplicity
+        }
+
+        private void UpdateStateBasedAnimation()
+        {
+            // Handle state-specific animations
+            switch (soulStateMachine.currentState)
             {
-                animator.SetBool(SPRINT_PARAM, true);
-                IsSprinting = true;
+                case PlayerAttackState attackState:
+                    HandleAttackAnimation();
+                    break;
+                case PlayerDodgeState dodgeState:
+                    HandleDodgeAnimation();
+                    break;
+                case PlayerStaggerState staggerState:
+                    HandleStaggerAnimation();
+                    break;
+                case PlayerDeadState deadState:
+                    HandleDeathAnimation();
+                    break;
             }
         }
 
-        public void StopSprint()
+        private void HandleAttackAnimation()
         {
-            if (IsSprinting)
-            {
-                animator.SetBool(SPRINT_PARAM, false);
-                IsSprinting = false;
-            }
+            // Different attack animations based on input or weapon type
+            SetTrigger(ATTACK_TRIGGER);
         }
 
-        public void PlayJumpStart()
+        private void HandleDodgeAnimation()
         {
-            animator.SetTrigger(JUMP_START_TRIGGER);
-            IsJumping = true;
+            SetTrigger(DODGE_TRIGGER);
         }
 
-        public void PlayJumpFalling()
+        private void HandleStaggerAnimation()
         {
-            animator.SetTrigger(JUMP_FALLING_TRIGGER);
+            SetTrigger(STAGGER_TRIGGER);
         }
 
-        public void PlayJumpEnd()
+        private void HandleDeathAnimation()
         {
-            animator.SetTrigger(JUMP_END_TRIGGER);
-            IsJumping = false;
+            SetTrigger(DEATH_TRIGGER);
+            SetBool(IS_DEAD, true);
         }
 
-        public override void ResetAnimationStates()
+        // Public methods for external control
+        public void PlayAttackAnimation(int attackType = 0)
         {
-            IsSprinting = false;
-            IsJumping = false;
-            animator.SetBool(SPRINT_PARAM, false);
+            SetFloat(ATTACK_TYPE, attackType);
+            SetTrigger(ATTACK_TRIGGER);
+        }
+
+        public void PlayDodgeAnimation()
+        {
+            SetTrigger(DODGE_TRIGGER);
+        }
+
+        public void PlayHitReaction()
+        {
+            SetTrigger(STAGGER_TRIGGER);
         }
     }
 
