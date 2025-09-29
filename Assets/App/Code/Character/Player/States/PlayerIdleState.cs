@@ -1,57 +1,43 @@
-using Assets.App.Code.StateMachine;
-using SotD.Characters;
-using SotD.Characters.Player;
+﻿using App.Code.Character.Player;
+using Assets.App.Code.Core.FSM;
+using App.Code.Character.Player.States;
 using UnityEngine;
 
-public class PlayerIdleState : IState
+namespace Assets.App.Code.Character.Player.States
 {
-    private PlayerController player;
+    public class PlayerIdleState : IState
+    {
+        private readonly PlayerController _playerController;
 
-    public PlayerIdleState(PlayerController player)
-    {
-        this.player = player;
-    }
-
-    public void Enter()
-    {
-        Debug.Log("Player entered Idle state");
-        // Animator parameters are handled in PlayerController.UpdateAnimatorParameters()
-    }
-    public void Execute()
-    {
-        // Check for transitions using cached input
-        if (player.movementMagnitude > 0.1f)
+        public PlayerIdleState(PlayerController playerController)
         {
-            if (player.isWalking)
-            {
-                player.stateMachine.ChangeState(player.walkingState);
-            }
-            else if (player.isSprinting)
-            {
-                player.stateMachine.ChangeState(player.sprintingState);
-            }
-            else
-            {
-                // Default movement is running
-                player.stateMachine.ChangeState(player.runningState);
-            }
+            _playerController = playerController;
         }
 
-        if (player.jumpPressed)
+        public void Enter()
         {
-            player.stateMachine.ChangeState(player.jumpingState);
+            Debug.Log("Entering Idle State");
+            _playerController.AnimationSystem.UpdateMovementAnimation(Vector2.zero);
         }
-    }
 
-    public void ExecutePhysics()
-    {
-        // PHYSICS ONLY - No movement in idle state
-        // Could add idle physics like slight swaying, breathing animation, etc.
-    }
+        public void ExecuteUpdate()
+        {
+            Debug.Log("ExecuteUpdate Idle State");
+            _playerController.AnimationSystem.UpdateMovementAnimation(Vector2.zero);
+            //_playerController.movementSystem.Move(Vector3.zero, 0f, 0f, _playerController.movementSystem.deceleration);
+        }
 
-    public void Exit()
-    {
-        Debug.Log("Player exited Idle state");
+        public void ExecutePhysics()
+        {
+            Debug.Log("ExecutePhysics Idle State");
+            // Stop movement
+            _playerController.MovementSystem.Stop();
+        }
+
+        public void Exit()
+        {
+            Debug.Log("Exiting Idle State");
+            // Cleanup if needed
+        }
     }
 }
-

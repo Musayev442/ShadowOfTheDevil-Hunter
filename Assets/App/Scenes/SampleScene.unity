@@ -1083,7 +1083,7 @@ PrefabInstance:
       addedObject: {fileID: 725129378500946867}
     - targetCorrespondingSourceObject: {fileID: 1040718758376033218, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 725129378500946868}
+      addedObject: {fileID: 725129378500946872}
   m_SourcePrefab: {fileID: 100100000, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
 --- !u!1 &725129378500946862 stripped
 GameObject:
@@ -1140,7 +1140,7 @@ CapsuleCollider:
   m_Height: 1.7925711
   m_Direction: 1
   m_Center: {x: -1.26988806e-14, y: 0.8913554, z: 1.1337204e-21}
---- !u!114 &725129378500946868
+--- !u!114 &725129378500946872
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1149,33 +1149,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 725129378500946862}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb192e05b6ea5f345bb697a71a8354a7, type: 3}
+  m_Script: {fileID: 11500000, guid: 43dea9fc6de6bd4429b73b3ce9738412, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 725129378500946870}
   rb: {fileID: 725129378500946865}
-  _acceleration: 10
-  _cameraTransform: {fileID: 330585546}
+  animator: {fileID: 725129378500946874}
+  acceleration: 10
+  baseStats:
+    Level: 0
+    Vitality: 0
+    Endurance: 0
+    Strength: 0
+    Dexterity: 0
+    Intelligence: 0
+    Faith: 0
+    CurrentHealth: 0
+    CurrentStamina: 0
+    CurrentMana: 0
+  cameraTransform: {fileID: 330585546}
+  interactionRange: 2
   walkSpeed: 2
-  runSpeed: 4
+  runSpeed: 18
   sprintSpeed: 6
+  rotateSpeed: 4
   jumpForce: 10
   airControlSpeed: 2
-  _jumpForce: 5
-  _rollForce: 7
-  groundLayer:
+  checkDistance: 0.1
+  groundMask:
     serializedVersion: 2
-    m_Bits: 64
-  groundCheckDistance: 0.1
-  horizontal: 0
-  vertical: 0
-  jumpPressed: 0
-  isSprinting: 0
-  isWalking: 0
-  movementDirection: {x: 0, y: 0, z: 0}
-  movementInput: {x: 0, y: 0}
-  movementMagnitude: 0
---- !u!95 &725129378500946870 stripped
+    m_Bits: 0
+--- !u!95 &725129378500946874 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 6042313693857532674, guid: 3151af004fdc0b44f8946aa25146c2a7, type: 3}
   m_PrefabInstance: {fileID: 725129378500946861}
