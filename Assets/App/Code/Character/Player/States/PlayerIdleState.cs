@@ -16,27 +16,27 @@ namespace Assets.App.Code.Character.Player.States
 
         public void Enter()
         {
-            Debug.Log("Entering Idle State");
-            _playerController.AnimationSystem.UpdateMovementAnimation(Vector2.zero);
+             Debug.Log("Entering Idle State");
+            _playerController.AnimationSystem.SetMovementSpeed(0);
         }
 
         public void ExecuteUpdate()
         {
-            Debug.Log("ExecuteUpdate Idle State");
-            _playerController.AnimationSystem.UpdateMovementAnimation(Vector2.zero);
+            // Debug.Log("ExecuteUpdate Idle State");
+            _playerController.AnimationSystem.SetMovementSpeed(0);
             //_playerController.movementSystem.Move(Vector3.zero, 0f, 0f, _playerController.movementSystem.deceleration);
         }
 
         public void ExecutePhysics()
         {
-            Debug.Log("ExecutePhysics Idle State");
+            // Debug.Log("ExecutePhysics Idle State");
             // Stop movement
             _playerController.MovementSystem.Stop();
         }
 
         public void Exit()
         {
-            Debug.Log("Exiting Idle State");
+             Debug.Log("Exiting Idle State");
             // Cleanup if needed
         }
     }

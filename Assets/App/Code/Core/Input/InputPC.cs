@@ -6,10 +6,10 @@ public class InputPC : IInputService
 {
     public float HorizontalInput => Input.GetAxis("Horizontal");
     public float VerticalInput => Input.GetAxis("Vertical");
-    public Vector2 MovementInput => new Vector3(HorizontalInput, VerticalInput);
+    public Vector2 InputDirection => new Vector3(HorizontalInput, VerticalInput);
     public bool JumpPressed => Input.GetButtonDown("Jump");
-    public bool IsSprinting => Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
-    public bool IsWalking => Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl);
-    public bool IsCrouching => Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt);
-    public bool HasMovementInput => MovementInput.magnitude > 0.1f;
+    public bool IsSprinting => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+    public bool IsWalking => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+    public bool IsCrouching => Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+    public bool HasMovementInput => InputDirection.magnitude > 0.1f;
 }

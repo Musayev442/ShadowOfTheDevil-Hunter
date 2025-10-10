@@ -4,6 +4,9 @@ namespace App.Code.Core.Systems.Interfaces
 {
     public interface IAnimationSystem
     {
-        void UpdateMovementAnimation(Vector2 movementInput, bool isRunning = false);
+        void SetMovementSpeed(float speed);
+        void SetGrounded(bool isGrounded);
+        void SetVerticalVelocity(float velocity);
+        void SetTrigger();
     }
 }

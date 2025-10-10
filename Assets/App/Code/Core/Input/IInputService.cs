@@ -12,6 +12,6 @@ namespace Assets.App.Code.Core.Input
         bool IsWalking { get; }
         bool IsCrouching { get; }
         bool HasMovementInput { get; }
-        Vector2 MovementInput { get; }
+        Vector2 InputDirection { get; }
     }
 }

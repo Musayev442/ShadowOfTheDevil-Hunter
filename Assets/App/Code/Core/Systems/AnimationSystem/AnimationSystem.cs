@@ -5,44 +5,43 @@ namespace App.Code.Core.Systems.AnimationSystem
 {
     public class AnimationSystem : IAnimationSystem
     {
-        private readonly int _horizontal = Animator.StringToHash("Horizontal");
-        private readonly int _vertical = Animator.StringToHash("Vertical");
+        private static readonly int Jump = Animator.StringToHash("Jump");
         private readonly Animator _animator;
-        private readonly float _smoothTime;
-    
-        // Current smoothed values
-        private float _currentHorizontal;
-        private float _currentVertical;
-        private float _verticalVelocity;
+        private readonly int _speedHash;
+        private readonly int _isGroundedHash;
+        private readonly int _verticalVelocityHash;
+        private readonly float _dampTime;
 
-        public AnimationSystem(Animator animator, float smoothTime = 0.1f)
+        public AnimationSystem(Animator animator, float dampTime = 0.3f)
         {
-            this._animator = animator;
-            this._smoothTime = smoothTime;
+            _animator = animator;
+            _dampTime = dampTime;
+            _speedHash = Animator.StringToHash("Speed");
+            _isGroundedHash = Animator.StringToHash("IsGrounded");
+            _verticalVelocityHash = Animator.StringToHash("VerticalVelocity");
         }
-    
-        public void UpdateMovementAnimation(Vector2 movementInput, bool isRunning = false)
+
+        public void SetMovementSpeed(float speed)
         {
-            float targetVertical = movementInput.magnitude; // magnitude = speed (0 → idle, 1 → walk)
+            if (_animator == null) return;
+        
+            // Set animator parameter - single float for idle/walk/run blend
+            _animator.SetFloat(_speedHash, speed, _dampTime, Time.deltaTime);
+        }
+        
+        public void SetGrounded(bool isGrounded)
+        {
+            _animator.SetBool(_isGroundedHash, isGrounded);
+        }
 
-            // Apply running speed multiplier
-            if (isRunning && targetVertical > 0.1f)
-            {
-                targetVertical *= 2f; // double for running
-            }
+        public void SetVerticalVelocity(float velocity)
+        {
+            _animator.SetFloat(_verticalVelocityHash, velocity);
+        }
 
-            // SmoothDamp towards target value
-            _currentVertical = Mathf.SmoothDamp(
-                _currentVertical,
-                targetVertical,
-                ref _verticalVelocity,
-                _smoothTime,
-                Mathf.Infinity, 
-                Time.deltaTime
-            );
-
-            // Set only the Vertical parameter
-            _animator.SetFloat(_vertical, _currentVertical);
+        public void SetTrigger()
+        {
+            _animator.SetTrigger(Jump);
         }
     }
 }

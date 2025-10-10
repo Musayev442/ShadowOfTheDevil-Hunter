@@ -24,7 +24,6 @@ namespace App.Code.Core.Systems.Movement
 
         public void Move(Vector3 direction, float moveSpeed)
         {
-            Debug.Log("Movement System");
             if (direction.magnitude > 0.1f)
             {
                 // Convert input direction to camera-relative direction

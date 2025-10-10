@@ -23,6 +23,8 @@ namespace App.Code.Core.FSM
 
         public void UpdateState()
         {
+            CurrentState?.ExecuteUpdate();
+            
             // Check for transitions first, some transitions depend on physics calculations (ground detection, collisions, etc.)
             IState nextState = stateTransitionSystem.CheckTransitions(CurrentState);
             if (nextState != null)
@@ -30,8 +32,6 @@ namespace App.Code.Core.FSM
                 ChangeState(nextState);
                 return;
             }
-            
-            CurrentState?.ExecuteUpdate();
         }
 
         public void UpdatePhysics()
