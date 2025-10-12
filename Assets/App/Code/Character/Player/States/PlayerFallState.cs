@@ -21,7 +21,7 @@ namespace App.Code.Character.Player.States
         {
             //Debug.Log(_playerController.Velocity.y);
            _playerController.AnimationSystem.SetVerticalVelocity(_playerController.Velocity.y);
-           _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded());
+           _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded);
         }
 
         public void ExecutePhysics()

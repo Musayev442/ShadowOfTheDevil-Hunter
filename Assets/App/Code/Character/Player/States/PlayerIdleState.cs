@@ -16,7 +16,7 @@ namespace Assets.App.Code.Character.Player.States
 
         public void Enter()
         {
-             Debug.Log("Entering Idle State");
+             //Debug.Log("Entering Idle State");
             _playerController.AnimationSystem.SetMovementSpeed(0);
         }
 
@@ -36,7 +36,7 @@ namespace Assets.App.Code.Character.Player.States
 
         public void Exit()
         {
-             Debug.Log("Exiting Idle State");
+             //Debug.Log("Exiting Idle State");
             // Cleanup if needed
         }
     }

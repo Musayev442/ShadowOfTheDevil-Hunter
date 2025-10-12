@@ -46,6 +46,8 @@ namespace App.Code.Character.Player
         public IJumpable Jumpable {get; private set;}
         public Vector3 Velocity => rb.linearVelocity;
         public bool IsRising => rb.linearVelocity.y > 0.1f;
+        public bool IsGrounded => 
+            Physics.Raycast(groundCheck.position, Vector3.down, checkDistance, groundMask);
         public bool IsFalling => rb.linearVelocity.y < -0.1f;
         public float TimeInAir { get; set; }
         
@@ -117,7 +119,7 @@ namespace App.Code.Character.Player
 
         private void FixedUpdate()
         {
-            Debug.Log(IsGrounded());
+            Debug.Log(IsGrounded);
             stateMachine.UpdatePhysics();
 
         }
@@ -131,36 +133,36 @@ namespace App.Code.Character.Player
             ts.AddStateTransition(_playerIdleState, () => InputService.HasMovementInput && InputService.IsWalking, _playerWalkState,(int)StatePriority.Low);
             ts.AddStateTransition(_playerIdleState, () => InputService.HasMovementInput, _playerRunState, (int)StatePriority.Default);
             ts.AddStateTransition(_playerIdleState, () => InputService.HasMovementInput && InputService.IsSprinting && CanSprint(), _playerSprintState, (int)StatePriority.Normal);
-            ts.AddStateTransition(_playerIdleState, () => InputService.JumpPressed && IsGrounded(),_playerJumpState, (int)StatePriority.High);
+            ts.AddStateTransition(_playerIdleState, () => InputService.JumpPressed && IsGrounded,_playerJumpState, (int)StatePriority.High);
             ts.AddStateTransition(_playerIdleState, () => ShouldBeInFallState(), _playerFallState, (int)StatePriority.High);
             
             // From Walk
             ts.AddStateTransition(_playerWalkState, () => !InputService.HasMovementInput,_playerIdleState,(int )StatePriority.Default);
             ts.AddStateTransition(_playerWalkState, () => !InputService.IsWalking, _playerRunState,(int)StatePriority.Low); // Release walk key -> run
             ts.AddStateTransition(_playerWalkState, () => InputService.HasMovementInput && InputService.IsSprinting && CanSprint(), _playerSprintState, (int)StatePriority.Normal);
-            ts.AddStateTransition(_playerWalkState, () => InputService.JumpPressed && IsGrounded(),_playerJumpState, (int)StatePriority.High);
+            ts.AddStateTransition(_playerWalkState, () => InputService.JumpPressed && IsGrounded,_playerJumpState, (int)StatePriority.High);
             ts.AddStateTransition(_playerWalkState, () => ShouldBeInFallState(), _playerFallState, (int)StatePriority.High);
             
             // From Run
             ts.AddStateTransition(_playerRunState, () => !InputService.HasMovementInput, _playerIdleState,(int)StatePriority.Default);
             ts.AddStateTransition(_playerRunState, () => InputService.IsWalking, _playerWalkState,(int)StatePriority.Low);
             ts.AddStateTransition(_playerRunState, () => InputService.HasMovementInput && InputService.IsSprinting && CanSprint(), _playerSprintState, (int)StatePriority.Normal);
-            ts.AddStateTransition(_playerRunState, () => InputService.JumpPressed && IsGrounded(),_playerJumpState, (int)StatePriority.High);
+            ts.AddStateTransition(_playerRunState, () => InputService.JumpPressed && IsGrounded,_playerJumpState, (int)StatePriority.High);
             ts.AddStateTransition(_playerRunState, () => ShouldBeInFallState(), _playerFallState, (int)StatePriority.High);
             
             // From Sprint
             ts.AddStateTransition(_playerSprintState, () => !CanSprint(), _playerRunState, (int)StatePriority.High);
             ts.AddStateTransition(_playerSprintState, () => !InputService.IsSprinting, _playerRunState, (int)StatePriority.Normal);
             ts.AddStateTransition(_playerSprintState, () => !InputService.HasMovementInput, _playerIdleState, (int)StatePriority.Default);
-            ts.AddStateTransition(_playerSprintState, () => InputService.JumpPressed && IsGrounded(),_playerJumpState, (int)StatePriority.High);
+            ts.AddStateTransition(_playerSprintState, () => InputService.JumpPressed && IsGrounded,_playerJumpState, (int)StatePriority.High);
             ts.AddStateTransition(_playerSprintState, () => ShouldBeInFallState(), _playerFallState, (int)StatePriority.High);
             
             // From Jump
-            ts.AddStateTransition(_playerJumpState, () => IsFalling, _playerFallState, (int)StatePriority.High);
-            //ts.AddStateTransition(_playerJumpState, () => IsGrounded(), _playerLandState, (int)StatePriority.Critical);
+            //ts.AddStateTransition(_playerJumpState, () => IsFalling, _playerFallState, (int)StatePriority.High);
+            ts.AddStateTransition(_playerJumpState, () => IsGrounded && IsFalling, _playerLandState, (int)StatePriority.Critical);
             
             // From Fall
-            ts.AddStateTransition(_playerFallState, () => IsGrounded(), _playerLandState, (int)StatePriority.Critical);
+            //ts.AddStateTransition(_playerFallState, () => IsGrounded, _playerLandState, (int)StatePriority.Critical);
             
             // From Land
             ts.AddStateTransition(_playerLandState, () => CanMove, GetNextMovementState(), (int)StatePriority.Normal);
@@ -168,6 +170,7 @@ namespace App.Code.Character.Player
         
         public IState GetNextMovementState()
         {
+            Debug.Log("GetNextMovementState");
             if (!InputService.HasMovementInput) return _playerIdleState;
             if (InputService.IsSprinting && CanSprint()) return _playerSprintState;
             if (InputService.IsWalking) return _playerWalkState;
@@ -179,15 +182,10 @@ namespace App.Code.Character.Player
             return true;
         }
 
-        public bool IsGrounded()
-        {
-            // Cast a short ray downward to detect ground
-            return Physics.Raycast(groundCheck.position, Vector3.down, checkDistance, groundMask);
-        }
-        
+
         public bool ShouldBeInFallState()
         {
-            return !IsGrounded() && !IsRising && stateMachine.CurrentState != _playerJumpState;
+            return !IsGrounded && !IsRising && stateMachine.CurrentState != _playerJumpState;
         }
 
         public void OnLandAnimationComplete()

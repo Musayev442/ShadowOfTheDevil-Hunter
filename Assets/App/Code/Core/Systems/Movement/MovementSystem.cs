@@ -9,12 +9,12 @@ namespace App.Code.Core.Systems.Movement
     {
         private readonly Rigidbody _rb;
         private readonly Transform _cameraTransform;
-        private Vector3 _currentVelocity;
-        private Quaternion _targetRotation;
+        [Header("Smooth Movement")]
+        public float acceleration = 10f;
+        public float deceleration = 10f;
+        public float maxSpeed = 8f;
 
-        public float MoveSpeed { get; set; }
-        public bool IsMoving { get; }
-        public Vector3 CurrentVelocity { get; }
+        private Vector3 _currentVelocity;
 
         public MovementSystem(Rigidbody rigidbody, Transform cameraTransform)
         {
@@ -22,18 +22,25 @@ namespace App.Code.Core.Systems.Movement
             _cameraTransform = cameraTransform;
         }
 
-        public void Move(Vector3 direction, float moveSpeed)
+
+        public void Move(Vector3 moveInput, float moveSpeed)
         {
-            if (direction.magnitude > 0.1f)
+            // Calculate target velocity
+            Vector3 targetVelocity = moveInput * moveSpeed;
+        
+            // Smoothly interpolate towards target velocity using fixedDeltaTime
+            float smoothFactor = (moveInput.magnitude > 0.1f ? acceleration : deceleration) * Time.fixedDeltaTime;
+            _currentVelocity = Vector3.Lerp(_currentVelocity, targetVelocity, smoothFactor);
+        
+            // Apply movement while preserving Y velocity for jumping/gravity
+            _rb.linearVelocity = new Vector3(_currentVelocity.x, _rb.linearVelocity.y, _currentVelocity.z);
+        
+            // Optional: Limit maximum horizontal speed
+            Vector3 horizontalVel = new Vector3(_rb.linearVelocity.x, 0f, _rb.linearVelocity.z);
+            if (horizontalVel.magnitude > maxSpeed)
             {
-                // Convert input direction to camera-relative direction
-                Vector3 cameraRelativeMovement = GetCameraRelativeMovement(direction);
-            
-                // Apply smooth movement using velocity
-                Vector3 targetVelocity = cameraRelativeMovement * moveSpeed;
-                targetVelocity.y = _rb.linearVelocity.y; // Preserve gravity
-            
-                _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);
+                horizontalVel = horizontalVel.normalized * maxSpeed;
+                _rb.linearVelocity = new Vector3(horizontalVel.x, _rb.linearVelocity.y, horizontalVel.z);
             }
         }
         

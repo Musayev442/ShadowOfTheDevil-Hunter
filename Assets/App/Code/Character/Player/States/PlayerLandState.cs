@@ -1,4 +1,5 @@
 using Assets.App.Code.Core.FSM;
+using UnityEngine;
 
 namespace App.Code.Character.Player.States
 {
@@ -13,7 +14,8 @@ namespace App.Code.Character.Player.States
 
         public void Enter()
         {
-            _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded());
+            Debug.Log("Enter LandState");
+            _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded);
             _playerController.CanMove = false;
         }
 
