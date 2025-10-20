@@ -1,5 +1,5 @@
-using Assets.App.Code.Character.Player;
-using Assets.App.Code.Core.FSM;
+using App.Code.Core.FSM;
+using App.Code.Character.Player;
 using UnityEngine;
 
 namespace App.Code.Character.Player.States
@@ -20,14 +20,14 @@ namespace App.Code.Character.Player.States
         public void ExecuteUpdate()
         {
             // Debug.Log("ExecutePhysics Sprint State");
-            _playerController.AnimationSystem.SetMovementSpeed(1.5f);
+           // _playerController.AnimationSystem.SetMovementSpeed(1.5f);
         }
 
         public void ExecutePhysics()
         {
-            _inputVector = _playerController.InputService.InputDirection;
-            _playerController.MovementSystem.Move(new Vector3(_inputVector.x, 0, _inputVector.y), 18);
-            _playerController.MovementSystem.Rotate(new Vector3(_inputVector.x, 0, _inputVector.y), _playerController.transform);
+            // _inputVector = _playerController.InputService.InputDirection;
+            // _playerController.MovementSystem.Move(new Vector3(_inputVector.x, 0, _inputVector.y), 18);
+            // _playerController.MovementSystem.Rotate(new Vector3(_inputVector.x, 0, _inputVector.y), _playerController.transform);
         }
 
         public void Exit()

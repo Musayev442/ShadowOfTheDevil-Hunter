@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Assets.App.Code.Core.Input
+namespace App.Code.Core.Input
 {
     public interface IInputService
     {
@@ -12,6 +11,10 @@ namespace Assets.App.Code.Core.Input
         bool IsWalking { get; }
         bool IsCrouching { get; }
         bool HasMovementInput { get; }
+        bool IsLockedOn { get; }
+        bool SwitchTargetLeft { get; }
+        bool SwitchTargetRight { get; }
         Vector2 InputDirection { get; }
+        
     }
 }

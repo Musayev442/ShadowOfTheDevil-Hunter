@@ -1,9 +1,6 @@
-﻿using App.Code.Character.Player;
-using Assets.App.Code.Core.FSM;
-using App.Code.Character.Player.States;
-using UnityEngine;
+﻿using App.Code.Core.FSM;
 
-namespace Assets.App.Code.Character.Player.States
+namespace App.Code.Character.Player.States
 {
     public class PlayerIdleState : IState
     {
@@ -17,13 +14,13 @@ namespace Assets.App.Code.Character.Player.States
         public void Enter()
         {
              //Debug.Log("Entering Idle State");
-            _playerController.AnimationSystem.SetMovementSpeed(0);
+            //_playerController.AnimationSystem.SetMovementSpeed(0);
         }
 
         public void ExecuteUpdate()
         {
             // Debug.Log("ExecuteUpdate Idle State");
-            _playerController.AnimationSystem.SetMovementSpeed(0);
+            //_playerController.AnimationSystem.SetMovementSpeed(0);
             //_playerController.movementSystem.Move(Vector3.zero, 0f, 0f, _playerController.movementSystem.deceleration);
         }
 
@@ -31,7 +28,7 @@ namespace Assets.App.Code.Character.Player.States
         {
             // Debug.Log("ExecutePhysics Idle State");
             // Stop movement
-            _playerController.MovementSystem.Stop();
+            // _playerController.MovementSystem.Stop();
         }
 
         public void Exit()

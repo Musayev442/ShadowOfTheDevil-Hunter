@@ -1,6 +1,4 @@
 ﻿
-using Assets.App.Code.Core.FSM;
-
 namespace App.Code.Core.FSM
 {
     public class StateMachine

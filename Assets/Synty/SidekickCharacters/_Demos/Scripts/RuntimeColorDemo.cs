@@ -1,18 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Synty.SidekickCharacters.API;
 using Synty.SidekickCharacters.Database;
 using Synty.SidekickCharacters.Database.DTO;
 using Synty.SidekickCharacters.Enums;
 using Synty.SidekickCharacters.Utils;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-namespace Synty.SidekickCharacters.Demo
+namespace Synty.SidekickCharacters._Demos.Scripts
 {
     /// <summary>
     ///     An example script to show how to interact with the Sidekick API in regards to colors at runtime.

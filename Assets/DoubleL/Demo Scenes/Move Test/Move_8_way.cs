@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DoubleL
+namespace DoubleL.Demo_Scenes.Move_Test
 {
     public class Move_8_way : MonoBehaviour
     {

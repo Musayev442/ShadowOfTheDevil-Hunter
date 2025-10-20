@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Assets.App.Code.Core.FSM;
 
 namespace App.Code.Core.FSM
 {

@@ -1,5 +1,5 @@
-using Assets.App.Code.Character.Player;
-using Assets.App.Code.Core.FSM;
+using App.Code.Core.FSM;
+using App.Code.Character.Player;
 
 namespace App.Code.Character.Player.States
 {

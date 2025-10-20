@@ -1,5 +1,5 @@
-using Assets.App.Code.Character.Player;
-using Assets.App.Code.Core.FSM;
+using App.Code.Core.FSM;
+using App.Code.Character.Player;
 using UnityEngine;
 
 namespace App.Code.Character.Player.States
@@ -17,24 +17,24 @@ namespace App.Code.Character.Player.States
         public void Enter()
         {
             //Debug.Log("Entering Jump State");
-            _playerController.AnimationSystem.SetGrounded(!_playerController.IsGrounded);
-            _playerController.AnimationSystem.SetTrigger();
-            _hasAppliedJumpForce = false;
+            // _playerController.AnimationSystem.SetGrounded(!_playerController.IsGrounded);
+            // _playerController.AnimationSystem.SetTrigger();
+            // _hasAppliedJumpForce = false;
         }
 
         public void ExecuteUpdate()
         {
             //Debug.Log("ExecuteUpdate Jump State: " + _playerController.IsGrounded());
-            _playerController.AnimationSystem.SetVerticalVelocity(_playerController.Velocity.y);
-            _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded);
+            // _playerController.AnimationSystem.SetVerticalVelocity(_playerController.Velocity.y);
+            // _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded);
         }
 
         public void ExecutePhysics()
         {
-            Debug.Log("ExecutePhysics Jump State");
-            if (_hasAppliedJumpForce)return;
-            _playerController.Jumpable.Jump();
-            _hasAppliedJumpForce = true;
+            // Debug.Log("ExecutePhysics Jump State");
+            // if (_hasAppliedJumpForce)return;
+            // _playerController.Jumpable.Jump();
+            // _hasAppliedJumpForce = true;
             
         }
 

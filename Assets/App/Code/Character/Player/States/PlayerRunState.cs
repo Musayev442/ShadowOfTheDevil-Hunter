@@ -1,6 +1,6 @@
 ﻿
-using Assets.App.Code.Character.Player;
-using Assets.App.Code.Core.FSM;
+using App.Code.Core.FSM;
+using App.Code.Character.Player;
 using UnityEngine;
 
 namespace App.Code.Character.Player.States
@@ -23,15 +23,15 @@ namespace App.Code.Character.Player.States
         {
             //Debug.Log("ExecuteUpdate Move State");
             // Update animation with running input (will apply run multiplier)
-            _playerController.AnimationSystem.SetMovementSpeed(1f);
+            //_playerController.AnimationSystem.SetMovementSpeed(1f);
         }
 
         public void ExecutePhysics()
         {
             // Debug.Log("ExecutePhysics Move State");
-            _inputVector = _playerController.InputService.InputDirection;
-            _playerController.MovementSystem.Move(new Vector3(_inputVector.x, 0, _inputVector.y), 18);
-            _playerController.MovementSystem.Rotate(new Vector3(_inputVector.x, 0, _inputVector.y), _playerController.transform);
+            // _inputVector = _playerController.InputService.InputDirection;
+            // _playerController.MovementSystem.Move(new Vector3(_inputVector.x, 0, _inputVector.y), 18);
+            // _playerController.MovementSystem.Rotate(new Vector3(_inputVector.x, 0, _inputVector.y), _playerController.transform);
         }
 
         public void Exit()

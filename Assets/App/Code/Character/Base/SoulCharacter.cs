@@ -2,10 +2,10 @@ using System;
 using UnityEngine;
 using App.Code.Character.Stats;
 using App.Code.Core.FSM;
-using Assets.App.Code.Core.FSM;
 using App.Code.Core.Systems.Interfaces;
 using App.Code.Core.Systems.Movement;
 using App.Code.Core.Systems.HealthSystem;
+using App.Code.Core.Systems.Movement.Interfaces;
 using App.Code.Core.Systems.StaminaSystem;
 
 namespace App.Code.Character.Base
@@ -22,7 +22,6 @@ namespace App.Code.Character.Base
         protected Rigidbody rb;
 
         [SerializeField] protected Animator animator;
-        [SerializeField] protected float acceleration;
         [SerializeField] protected CharacterStats baseStats;
 
         [Header("System")] protected IHealthSystem healthSystem;

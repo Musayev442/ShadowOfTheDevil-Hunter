@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace DoubleL
+namespace DoubleL.Demo_Scenes.Demo_Scripts
 {
     public class DemoCameraController : MonoBehaviour
     {

@@ -1,4 +1,4 @@
-using Assets.App.Code.Core.FSM;
+using App.Code.Core.FSM;
 using UnityEngine;
 
 namespace App.Code.Character.Player.States
@@ -14,9 +14,9 @@ namespace App.Code.Character.Player.States
 
         public void Enter()
         {
-            Debug.Log("Enter LandState");
-            _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded);
-            _playerController.CanMove = false;
+            // Debug.Log("Enter LandState");
+            // _playerController.AnimationSystem.SetGrounded(_playerController.IsGrounded);
+            // _playerController.CanMove = false;
         }
 
         public void ExecuteUpdate()

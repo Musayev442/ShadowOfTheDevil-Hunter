@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
-
-namespace Assets.App.Code.Core.FSM
+﻿namespace App.Code.Core.FSM
 {
         public interface IState
         {
