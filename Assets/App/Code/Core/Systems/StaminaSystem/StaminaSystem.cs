@@ -1,111 +1,75 @@
 using System;
 using UnityEngine;
 using App.Code.Core.Systems.Interfaces;
+using App.Code.Core.Systems.StaminaSystem.Config;
 
 namespace App.Code.Core.Systems.StaminaSystem
 {
-    [System.Serializable]
-    public class StaminaSystem
+    public class StaminaSystem : IStaminaSystem
     {
-        [SerializeField] private int maxStamina = 100;
-        [SerializeField] private int currentStamina;
-        [SerializeField] private float regenRate = 10f;
-        [SerializeField] private float regenDelay = 1f;
-        [SerializeField] private bool isRegenerating = true;
-
-        // Properties
-        public int CurrentStamina => currentStamina;
-        public int MaxStamina => maxStamina;
-
-        // Events
-        public event Action<int> OnStaminaChanged;
+        private float _currentStamina;
+        private float _maxStamina;
+        private float _regenRate;
+        private float _regenDelay;
+        private float _regenDelayTimer;
+        
+        public float CurrentStamina => _currentStamina;
+        public float MaxStamina => _maxStamina;
+        public bool IsRegenerating => _regenDelayTimer <= 0f;
+        
+        public event Action<float, float> OnStaminaChanged;
         public event Action OnStaminaDepleted;
-
-        private float timeSinceLastUse;
-        private string ownerName;
-
-        public StaminaSystem(string ownerName = "Character")
+        
+        // Constructor now takes config
+        public StaminaSystem(StaminaConfig config)
         {
-            this.ownerName = ownerName;
-            currentStamina = maxStamina;
+            _maxStamina = config.MaxStamina;
+            _currentStamina = _maxStamina;
+            _regenRate = config.RegenRate;
+            _regenDelay = config.RegenDelay;
+            _regenDelayTimer = 0f;
         }
-
-        public void Update(float deltaTime)
+        
+        public void UseStamina(float amount)
         {
-            if (isRegenerating)
-            {
-                RegenerateStamina(deltaTime);
-            }
-        }
-
-        public bool CanPerformAction(int staminaCost)
-        {
-            return currentStamina >= staminaCost;
-        }
-
-        public bool ConsumeStamina(int amount)
-        {
-            if (!CanPerformAction(amount))
-            {
-                if (currentStamina <= 0)
-                {
-                    OnStaminaDepleted?.Invoke();
-                }
-
-                return false;
-            }
-
-            currentStamina -= amount;
-            currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-            timeSinceLastUse = 0f;
-
-            OnStaminaChanged?.Invoke(currentStamina);
-            Debug.Log($"{ownerName} used {amount} stamina. Stamina: {currentStamina}/{maxStamina}");
-
-            if (currentStamina <= 0)
+            if (amount <= 0) return;
+            
+            _currentStamina = Mathf.Max(0, _currentStamina - amount);
+            _regenDelayTimer = _regenDelay;
+            
+            OnStaminaChanged?.Invoke(_currentStamina, _maxStamina);
+            
+            if (_currentStamina <= 0)
             {
                 OnStaminaDepleted?.Invoke();
             }
-
-            return true;
         }
-
-        public void RestoreStamina(int amount)
+        
+        public void RegenerateStamina(float deltaTime)
         {
-            if (amount <= 0) return;
-
-            currentStamina += amount;
-            currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-            OnStaminaChanged?.Invoke(currentStamina);
-        }
-
-        public void SetMaxStamina(int newMaxStamina)
-        {
-            float staminaPercentage = maxStamina > 0 ? (float)currentStamina / maxStamina : 1f;
-            maxStamina = newMaxStamina;
-            currentStamina = Mathf.RoundToInt(newMaxStamina * staminaPercentage);
-            OnStaminaChanged?.Invoke(currentStamina);
-        }
-
-        public void SetRegenRate(float newRegenRate)
-        {
-            regenRate = newRegenRate;
-        }
-
-        private void RegenerateStamina(float deltaTime)
-        {
-            timeSinceLastUse += deltaTime;
-
-            if (currentStamina < maxStamina && timeSinceLastUse >= regenDelay)
+            if (_regenDelayTimer > 0)
             {
-                int regenAmount = Mathf.RoundToInt(regenRate * deltaTime);
-                RestoreStamina(regenAmount);
+                _regenDelayTimer -= deltaTime;
+                return;
             }
+            
+            if (_currentStamina >= _maxStamina)
+                return;
+            
+            _currentStamina = Mathf.Min(_maxStamina, _currentStamina + _regenRate * deltaTime);
+            OnStaminaChanged?.Invoke(_currentStamina, _maxStamina);
         }
-
-        public void SetRegenerating(bool regenerating)
+        
+        public void SetStamina(float amount)
         {
-            isRegenerating = regenerating;
+            _currentStamina = Mathf.Clamp(amount, 0, _maxStamina);
+            OnStaminaChanged?.Invoke(_currentStamina, _maxStamina);
         }
+        
+        public bool HasEnoughStamina(float amount)
+        {
+            return _currentStamina >= amount;
+        }
+    
     }
 }

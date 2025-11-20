@@ -91,8 +91,6 @@ namespace App.Code.Core.Systems.JumpSystem
             _coyoteTimeCounter = 0f;
             _hasJumped = true;
             _justJumped = true; // Set flag for animation system
-
-            Debug.Log("[JumpSystem] Jump executed!");
         }
 
         private bool CheckGround()

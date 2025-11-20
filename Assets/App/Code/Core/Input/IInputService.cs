@@ -4,8 +4,13 @@ namespace App.Code.Core.Input
 {
     public interface IInputService
     {
+        float MouseX { get; }
+        float MouseY { get; }
+        float ScrollInput { get; }
         float HorizontalInput { get; }
         float VerticalInput { get; }
+        bool RotateCameraLeft { get; }
+        bool RotateCameraRight { get; }
         bool JumpPressed { get; }
         bool IsSprinting { get; }
         bool IsWalking { get; }
@@ -15,6 +20,7 @@ namespace App.Code.Core.Input
         bool SwitchTargetLeft { get; }
         bool SwitchTargetRight { get; }
         Vector2 InputDirection { get; }
+        
         
     }
 }

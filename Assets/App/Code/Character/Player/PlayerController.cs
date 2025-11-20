@@ -3,6 +3,8 @@ using UnityEngine;
 using App.Code.Core.Input;
 using App.Code.Character.Base;
 using App.Code.Core.Systems.AnimationSystem;
+using App.Code.Core.Systems.CameraSystem;
+using App.Code.Core.Systems.CameraSystem.Interfaces;
 using App.Code.Core.Systems.CombatSystem;
 using App.Code.Core.Systems.Interfaces;
 using App.Code.Core.Systems.JumpSystem;
@@ -11,6 +13,9 @@ using App.Code.Core.Systems.LockOnSystem.Interfaces;
 using App.Code.Core.Systems.Movement;
 using App.Code.Core.Systems.Movement.Interfaces;
 using App.Code.Core.Systems.Movement.Structs;
+using App.Code.Core.Systems.StaminaSystem;
+using App.Code.Core.Systems.StaminaSystem.Config;
+using App.Code.UI.HUD.Presenters;
 using Unity.Cinemachine;
 
 namespace App.Code.Character.Player
@@ -20,10 +25,6 @@ namespace App.Code.Character.Player
         [Header("Player Settings")] [SerializeField]
         private Transform cameraTransform;
         
-        [Header("Cinemachine")]
-        public CinemachineCamera normalCamera;   // ✅ CinemachineCamera (not VirtualCamera)
-        public CinemachineCamera lockOnCamera;   // ✅ CinemachineCamera
-
         [Header("Movement Configuration")] public MovementConfig movementConfig;
 
         [Header("Jump Configuration")] public JumpConfig jumpConfig;
@@ -33,8 +34,15 @@ namespace App.Code.Character.Player
         [Header("Combat Configuration")] public CombatConfig attackConfig;
 
         [Header("LockOn Configuration")] public LockOnConfig lockOnConfig;
+        [Header("LockOn Configuration")] public CameraConfig cameraConfig;
+        
+        [Header("Configs")]
+        [SerializeField] private StaminaConfig staminaConfig;
 
         [Header("Movement Speed State")] private IMovementSpeedState _movementSpeedState;
+        
+        [Header("UI Presenters")]
+        [SerializeField] private StaminaPresenter staminaPresenter;
 
         // Events
         public event Action<int> OnLevelUp;
@@ -46,13 +54,13 @@ namespace App.Code.Character.Player
         private AnimationSystem _animationSystem;
         private IMovementSystem _movementSystem;
         private IJumpable _jumpSystem;
-        private ILockOnSystem _lockOnSystem;
+        public ILockOnSystem _lockOnSystem;
+        private ICameraSystem _cameraSystem;
 
         private float _currentSpeed;
         private bool _wasGrounded;
         private bool _jumpRequested;
         private float _blendValue;
-
 
         protected override void Awake()
         {
@@ -62,12 +70,16 @@ namespace App.Code.Character.Player
             movementSystem = new MovementSystem(rb, transform, cameraTransform, movementConfig);
             _movementSpeedState = new MovementSpeedState(movementConfig, animationConfig);
             _lockOnSystem = new LockOnSystem(transform, lockOnConfig);
+            _cameraSystem = new CameraSystem(Camera.main, cameraConfig, _lockOnSystem, _inputService);
+            
+            staminaSystem = new StaminaSystem(staminaConfig);
         }
 
         private void Start()
         {
             // Freeze rotation to prevent player from tipping over
             rb.freezeRotation = true;
+            
         }
 
         private void Update()
@@ -75,7 +87,6 @@ namespace App.Code.Character.Player
             // Handle jump input
             if (_inputService.JumpPressed)
             {
-                Debug.Log("Jump key pressed!");
                 _jumpSystem.Jump();
             }
 
@@ -122,6 +133,9 @@ namespace App.Code.Character.Player
             _animationSystem.UpdateLockOnAnimation(_lockOnSystem, moveInput);
 
             //_animationSystem.UpdateAttackAnimation(_attackSystem);
+            
+            staminaSystem.RegenerateStamina(Time.deltaTime);
+            
         }
 
         private void FixedUpdate()
@@ -153,31 +167,9 @@ namespace App.Code.Character.Player
         
         void LateUpdate()
         {
-            UpdateLockOnCamera(); 
+            _cameraSystem.UpdateCamera(transform);
         }
         
-        private void UpdateLockOnCamera()
-        {
-            if (_lockOnSystem.IsLockedOn() && _lockOnSystem.GetCurrentTarget() != null)
-            {
-                lockOnCamera.enabled = true;
-                normalCamera.enabled = false;
-        
-                lockOnCamera.Follow = transform;
-                lockOnCamera.LookAt = _lockOnSystem.GetCurrentTarget();
-        
-                // ✅ DEBUG
-                Debug.Log($"[Camera] Follow: {lockOnCamera.Follow?.name}, LookAt: {lockOnCamera.LookAt?.name}");
-            }
-            else
-            {
-                normalCamera.enabled = true;
-                lockOnCamera.enabled = false;
-        
-                lockOnCamera.Follow = null;
-                lockOnCamera.LookAt = null;
-            }
-        }
 
         public void OnLandAnimationComplete()
         {
